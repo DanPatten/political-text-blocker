@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Political Text Blocker</string>
+    <string name="grant">Grant</string>
+    <string name="notification_access_on">Notification access: granted</string>
+    <string name="notification_access_off">Notification access: required</string>
+    <string name="contacts_on">Contacts: granted</string>
+    <string name="contacts_off">Contacts: needed to skip known contacts</string>
+    <string name="blocking_enabled">Block political texts from unknown senders</string>
+    <string name="test_hint">Paste a text to test the model</string>
+    <string name="test">Test</string>
+    <string name="test_result">%1$s · %2$d%% political%3$s</string>
+    <string name="would_block">Would block</string>
+    <string name="would_allow">Would allow</string>
+    <string name="suppressed_header">Suppressed messages (%1$d)</string>
+    <string name="clear_all">Clear all</string>
+    <string name="empty">No political texts suppressed yet.</string>
+    <string name="not_political">Not political</string>
+    <string name="delete">Delete</string>
+    <string name="reason">%1$d%% political%2$s</string>
+    <string name="marked_not_political">Sender allowed and model updated</string>
+</resources>
