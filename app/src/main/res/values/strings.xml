@@ -4,6 +4,11 @@
     <string name="grant">Grant</string>
     <string name="notification_access_on">Notification access: granted</string>
     <string name="notification_access_off">Notification access: required</string>
+    <string name="restricted_help">Seeing \"App was denied access\"? Tap App info, then ⋮ (top right) → Allow restricted settings, then come back and tap Grant again.</string>
+    <string name="app_info">App info</string>
+    <string name="restricted_intro_title">Important: Android will block this at first</string>
+    <string name="restricted_intro_message">Because this app isn\'t from the Play Store, Android will say \"App was denied access\" when you switch it on. That\'s normal.\n\nTo unlock it (one time only):\n\n1. Tap Continue, tap Political Text Blocker, and tap OK on the \"denied access\" message.\n2. Come back and tap App info.\n3. Tap ⋮ (top right) → Allow restricted settings, and confirm.\n4. Come back and tap Grant again. It works this time.</string>
+    <string name="restricted_intro_continue">Continue</string>
     <string name="contacts_on">Contacts, SMS &amp; notifications: granted</string>
     <string name="contacts_off">Contacts, SMS &amp; notifications: needed to skip contacts, read hidden texts and alert you</string>
     <string name="quiet_on">Quiet mode: on. Google Messages is silent; this app alerts you for every non-political text.</string>

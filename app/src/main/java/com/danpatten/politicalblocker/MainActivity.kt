@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -28,6 +29,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import java.util.Date
 
@@ -77,8 +79,21 @@ class MainActivity : AppCompatActivity() {
         emptyView = findViewById(R.id.emptyView)
         activityLog = findViewById<TextView>(R.id.activityLog).apply { movementMethod = ScrollingMovementMethod() }
 
+        findViewById<Button>(R.id.openAppInfo).setOnClickListener { openAppInfo() }
         grantNotification.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            if (BlockerApp.hasSeenRestrictedIntro(this)) {
+                openListenerSettings()
+            } else {
+                // First time only: sideloaded apps get "App was denied access" here, so explain the
+                // unlock steps before sending the user into Settings.
+                BlockerApp.setSeenRestrictedIntro(this)
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.restricted_intro_title)
+                    .setMessage(R.string.restricted_intro_message)
+                    .setPositiveButton(R.string.restricted_intro_continue) { _, _ -> openListenerSettings() }
+                    .setNeutralButton(R.string.app_info) { _, _ -> openAppInfo() }
+                    .show()
+            }
         }
         grantContacts.setOnClickListener {
             requestPermissions(RUNTIME_PERMISSIONS, REQUEST_CONTACTS)
@@ -177,6 +192,11 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, getString(R.string.test_scheduled, number), Toast.LENGTH_LONG).show()
     }
 
+    private fun openListenerSettings() = startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+
+    private fun openAppInfo() =
+        startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
+
     private fun refreshPermissions() {
         val listenerOn = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
         notificationStatus.setText(if (listenerOn) R.string.notification_access_on else R.string.notification_access_off)
@@ -193,6 +213,11 @@ class MainActivity : AppCompatActivity() {
         val archiveOn = ArchiveService.isEnabled(this)
         archiveStatus.setText(if (archiveOn) R.string.archive_on else R.string.archive_off)
         grantArchive.visibility = if (archiveOn) View.GONE else View.VISIBLE
+
+        // Sideloaded apps can't get notification or accessibility access until the user allows
+        // restricted settings, so explain how while either is still missing.
+        val restricted = !listenerOn || (BlockerApp.isAutoArchiveOn(this) && !archiveOn)
+        findViewById<View>(R.id.restrictedHelp).visibility = if (restricted) View.VISIBLE else View.GONE
     }
 
     private fun refreshList() {
