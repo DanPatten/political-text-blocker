@@ -39,6 +39,11 @@ object Keywords {
             "white house", "president", "presidential", "governor", "gubernatorial",
             "attorney general", "state rep", "city council", "patriots", "endorsed",
             "endorsement", "petition", "town hall", "swing state", "battleground",
+            // Issue / attack ads, which often have no donation ask or party name.
+            "supported the", "voted to", "voted for", "voted against", "voting for", "voting against",
+            "keeps voting", "your senator", "your congressman", "your congresswoman", "your representative",
+            "lawmakers", "politicians", "legislature", "endless wars",
+            "tariffs", "tax cuts", "tax hike", "tax increase", "billionaires", "special interests",
         ),
         // Common in political texts but also in ordinary conversation.
         WEAK to listOf(
@@ -46,9 +51,53 @@ object Keywords {
             "volunteer", "district", "patriot", "deadline", "deficit", "border", "abortion",
             "second amendment", "2nd amendment", "taxpayer", "democracy", "constitution",
             "stop to quit", "stop to end", "stop 2 end", "reply stop", "$5", "$10", "$25",
-            "rush", "urgent",
+            "rush", "urgent", "gov", "war", "wars", "gas prices", "price increases", "inflation",
+            "utility bills", "per household", "families", "seniors", "deserve better", "social security", "medicare",
+            "medicaid",
         ),
+        MEDIUM to POLITICIANS,
     ).flatMap { (weight, phrases) -> phrases.map { Keyword(it, weight) } }
+
+    /**
+     * US senators and governors (as of 2025-26), by full name plus the last names distinctive enough
+     * not to show up in ordinary texts. Attack ads name the politician but often nothing else political.
+     */
+    private val POLITICIANS: List<String>
+        get() = listOf(
+            // Senators
+            "tommy tuberville", "katie britt", "lisa murkowski", "dan sullivan", "mark kelly", "ruben gallego",
+            "john boozman", "tom cotton", "alex padilla", "adam schiff", "michael bennet", "john hickenlooper",
+            "richard blumenthal", "chris murphy", "chris coons", "lisa blunt rochester", "rick scott", "ashley moody",
+            "jon ossoff", "raphael warnock", "brian schatz", "mazie hirono", "mike crapo", "jim risch",
+            "dick durbin", "tammy duckworth", "todd young", "jim banks", "chuck grassley", "joni ernst",
+            "jerry moran", "roger marshall", "mitch mcconnell", "rand paul", "bill cassidy", "john kennedy",
+            "susan collins", "angus king", "chris van hollen", "angela alsobrooks", "elizabeth warren", "ed markey",
+            "gary peters", "elissa slotkin", "amy klobuchar", "tina smith", "roger wicker", "cindy hyde smith",
+            "josh hawley", "eric schmitt", "steve daines", "tim sheehy", "deb fischer", "pete ricketts",
+            "catherine cortez masto", "jacky rosen", "jeanne shaheen", "maggie hassan", "cory booker", "andy kim",
+            "martin heinrich", "ben ray lujan", "chuck schumer", "kirsten gillibrand", "thom tillis", "ted budd",
+            "john hoeven", "kevin cramer", "bernie moreno", "jon husted", "james lankford", "markwayne mullin",
+            "ron wyden", "jeff merkley", "john fetterman", "dave mccormick", "jack reed", "sheldon whitehouse",
+            "lindsey graham", "tim scott", "john thune", "mike rounds", "marsha blackburn", "bill hagerty",
+            "john cornyn", "ted cruz", "mike lee", "john curtis", "bernie sanders", "peter welch", "mark warner",
+            "tim kaine", "patty murray", "maria cantwell", "shelley moore capito", "jim justice", "ron johnson",
+            "tammy baldwin", "john barrasso", "cynthia lummis",
+            // Governors
+            "kay ivey", "mike dunleavy", "katie hobbs", "sarah huckabee sanders", "gavin newsom", "jared polis",
+            "ned lamont", "ron desantis", "brian kemp", "jb pritzker", "mike braun", "kim reynolds",
+            "andy beshear", "jeff landry", "janet mills", "wes moore", "maura healey", "gretchen whitmer",
+            "tim walz", "tate reeves", "mike kehoe", "greg gianforte", "jim pillen", "joe lombardo",
+            "kelly ayotte", "phil murphy", "mikie sherrill", "michelle lujan grisham", "kathy hochul", "josh stein",
+            "kelly armstrong", "mike dewine", "kevin stitt", "tina kotek", "josh shapiro", "dan mckee",
+            "henry mcmaster", "greg abbott", "spencer cox", "glenn youngkin", "abigail spanberger",
+            "bob ferguson", "patrick morrisey", "tony evers",
+            // Distinctive last names, as ads often use them alone
+            "tuberville", "murkowski", "gallego", "hickenlooper", "blumenthal", "ossoff", "warnock", "grassley",
+            "mcconnell", "alsobrooks", "slotkin", "klobuchar", "hawley", "ricketts", "cortez masto", "shaheen",
+            "gillibrand", "tillis", "lankford", "mullin", "wyden", "merkley", "fetterman", "whitehouse", "thune",
+            "blackburn", "hagerty", "cornyn", "barrasso", "lummis", "capito", "pritzker", "whitmer",
+            "hochul", "youngkin", "spanberger", "beshear", "gianforte", "dewine", "mcmaster", "lujan grisham",
+        )
 
     fun match(text: String): List<Keyword> {
         val padded = " ${PoliticalClassifier.normalize(text)} "
