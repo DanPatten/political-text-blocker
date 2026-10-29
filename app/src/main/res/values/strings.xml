@@ -4,8 +4,13 @@
     <string name="grant">Grant</string>
     <string name="notification_access_on">Notification access: granted</string>
     <string name="notification_access_off">Notification access: required</string>
-    <string name="contacts_on">Contacts: granted</string>
-    <string name="contacts_off">Contacts: needed to skip known contacts</string>
+    <string name="contacts_on">Contacts, SMS &amp; notifications: granted</string>
+    <string name="contacts_off">Contacts, SMS &amp; notifications: needed to skip contacts, read hidden texts and alert you</string>
+    <string name="quiet_on">Quiet mode: on. Google Messages is silent; this app alerts you for every non-political text.</string>
+    <string name="quiet_off">Quiet mode: off. Political texts can pop up for a split second before they\'re removed. To stop that, set Google Messages notifications to Silent (not Off).</string>
+    <string name="mark_as_read">Mark as read</string>
+    <string name="alert_channel_name">Text alerts</string>
+    <string name="alert_channel_description">Alerts for non-political texts while your messaging app is set to Silent</string>
     <string name="blocking_enabled">Block political texts from unknown senders</string>
     <string name="test_hint">Paste a text to test the model</string>
     <string name="test">Test</string>
@@ -19,4 +24,29 @@
     <string name="delete">Delete</string>
     <string name="reason">%1$d%% political%2$s</string>
     <string name="marked_not_political">Sender allowed and model updated</string>
+    <string name="recent_activity">Recent activity</string>
+    <string name="no_activity">Nothing yet. Texts from your SMS app will show up here as they arrive.</string>
+    <string name="own_number_hint">Your phone number</string>
+    <string name="send_test">Send test text in 10s</string>
+    <string name="test_scheduled">Sending a test political text to %1$s in 10 seconds. Close the app now.</string>
+    <string name="test_needs_number">Enter your own phone number first</string>
+    <string name="test_needs_permission">SMS permission is needed to send the test text</string>
+    <!-- Sample political texts for the "send test text" button; one is picked at random. -->
+    <string-array name="test_messages">
+        <item>URGENT: Democrats are 2 seats from losing the Senate. Every gift is 5X MATCHED until midnight. Chip in $5: secure.actblue.com/test Paid for by Test PAC. Txt STOP2END</item>
+        <item>GOP ALERT: Your Official 2026 Republican Survey is still unanswered. Respond before the deadline: gop.com/survey Paid for by Test PAC. Reply STOP to quit</item>
+        <item>Hi, it\'s Amy with the Elect Rivera for Congress campaign. Early voting starts Saturday. Can we count on your vote? Paid for by Rivera for Congress. Reply STOP to opt out</item>
+        <item>The radical left is outspending us 3 to 1! Rush $10 to fight back before the FEC deadline: winred.com/test Pd for by Test PAC</item>
+        <item>Your polling place may have changed. Make a plan to vote on Election Day and find your location at vote.gov. Paid for by Test Voter Fund</item>
+        <item>FINAL NOTICE: Your Democratic Party membership has expired. Renew today to keep fighting for our candidates: democrats.org/test STOP2END</item>
+        <item>Patriot, your Second Amendment rights are on the ballot this November. Vote Republican up and down the ticket! Paid for by Test PAC. Txt STOP to end</item>
+        <item>End of quarter fundraising deadline is TONIGHT and our campaign is $14,000 short. Can you contribute $15? secure.anedot.com/test</item>
+        <item>Hey, it\'s Ben, a volunteer for the Senator\'s re-election campaign. The race is TIED. Can I count on your support on Tuesday? Reply STOP to quit</item>
+        <item>Breaking: the Supreme Court decision changes everything. Add your name to our petition and chip in $3 to flip the House: actblue.com/test</item>
+    </string-array>
+    <string name="auto_archive_toggle">Auto-archive in Google Messages (briefly opens Messages; only while unlocked)</string>
+    <string name="archive_on">Accessibility service for auto-archive: on</string>
+    <string name="archive_off">Auto-archive needs its accessibility service turned on</string>
+    <string name="archive_service_label">Political Text Blocker auto-archive</string>
+    <string name="archive_service_description">Archives blocked political texts in Google Messages by opening the conversation list and tapping Archive for you. It only acts on conversations this app has blocked and reads no other screens.</string>
 </resources>

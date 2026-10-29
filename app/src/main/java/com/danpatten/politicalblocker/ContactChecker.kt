@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.ContactsContract
+import android.telephony.PhoneNumberUtils
+import java.util.Locale
 
 /** Decides whether a message sender is someone in the user's contacts. */
 object ContactChecker {
@@ -14,6 +16,18 @@ object ContactChecker {
     /** Phone numbers and short codes, e.g. "(555) 123-4567", "+15551234567", "88022". */
     fun looksLikeNumber(text: String): Boolean =
         numberPattern.matches(text.trim()) && text.count { it.isDigit() } >= 3
+
+    /**
+     * One display form per sender, so "7185550142" from the SMS inbox and "(718) 555-0142" from a
+     * notification are treated as the same conversation.
+     */
+    fun canonicalSender(sender: String): String {
+        val trimmed = sender.trim()
+        if (!looksLikeNumber(trimmed)) return trimmed
+        // Drop the country code ("+1718..." vs "718..."); contact lookup matches on trailing digits anyway.
+        val national = trimmed.filter { it.isDigit() }.takeLast(10)
+        return PhoneNumberUtils.formatNumber(national, Locale.getDefault().country) ?: national
+    }
 
     /**
      * @param sender what the SMS app displays (a contact name for known senders, else the number)

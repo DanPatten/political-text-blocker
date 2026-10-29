@@ -49,6 +49,17 @@ class PoliticalClassifierTest {
     }
 
     @Test
+    fun blocksEverySampleSentByTheTestButton() {
+        val strings = File("src/main/res/values/strings.xml").readText()
+        val samples = Regex("<item>(.*?)</item>").findAll(strings).map { it.groupValues[1].replace("\\'", "'") }.toList()
+        assertTrue(samples.isNotEmpty())
+        for (text in samples) {
+            val r = classifier.classify(text)
+            assertTrue("expected political (p=${r.probability}): $text", r.isPolitical)
+        }
+    }
+
+    @Test
     fun keywordsMatchWholeWordsOnly() {
         // "pac" must not match inside "package" / "space".
         assertTrue(Keywords.match("Your package is in the space bay").none { it.phrase == "pac" })

@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
 /** Local SQLite store: suppressed messages, user corrections, and allow-listed senders. */
-class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 1) {
+class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3) {
 
     data class Suppressed(
         val id: Long,
@@ -32,9 +32,55 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 1)
         )
         db.execSQL("CREATE TABLE feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, political INTEGER NOT NULL, body TEXT NOT NULL)")
         db.execSQL("CREATE TABLE allowed_senders (sender TEXT PRIMARY KEY)")
+        createPendingArchive(db)
+        createActivity(db)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion < 2) createPendingArchive(db)
+        if (oldVersion < 3) createActivity(db)
+    }
+
+    private fun createActivity(db: SQLiteDatabase) {
+        // UNIQUE line: SMS apps re-post notifications constantly, so repeats just bump the timestamp.
+        db.execSQL("CREATE TABLE activity (line TEXT PRIMARY KEY, timestamp INTEGER NOT NULL)")
+    }
+
+    fun addActivity(line: String) {
+        writableDatabase.insertWithOnConflict("activity", null, ContentValues().apply {
+            put("line", line)
+            put("timestamp", System.currentTimeMillis())
+        }, SQLiteDatabase.CONFLICT_REPLACE)
+        writableDatabase.execSQL(
+            "DELETE FROM activity WHERE line NOT IN (SELECT line FROM activity ORDER BY timestamp DESC LIMIT $ACTIVITY_LIMIT)"
+        )
+    }
+
+    /** Most recent first. */
+    fun activity(): List<Pair<Long, String>> =
+        readableDatabase.rawQuery("SELECT timestamp, line FROM activity ORDER BY timestamp DESC", null).use { c ->
+            buildList { while (c.moveToNext()) add(c.getLong(0) to c.getString(1)) }
+        }
+
+    private fun createPendingArchive(db: SQLiteDatabase) {
+        db.execSQL("CREATE TABLE pending_archive (sender TEXT PRIMARY KEY)")
+    }
+
+    /** Queues a Google Messages conversation for [ArchiveService] to archive. */
+    fun addPendingArchive(sender: String) {
+        writableDatabase.insertWithOnConflict(
+            "pending_archive", null, ContentValues().apply { put("sender", sender) }, SQLiteDatabase.CONFLICT_REPLACE,
+        )
+    }
+
+    fun pendingArchive(): List<String> =
+        readableDatabase.rawQuery("SELECT sender FROM pending_archive", null).use { c ->
+            buildList { while (c.moveToNext()) add(c.getString(0)) }
+        }
+
+    fun removePendingArchive(sender: String) {
+        writableDatabase.delete("pending_archive", "sender = ?", arrayOf(sender))
+    }
 
     /** Returns false if this exact message was already recorded (SMS apps re-post notifications). */
     fun addSuppressed(sender: String, body: String, probability: Double, keywords: List<String>, pkg: String): Boolean {
@@ -95,5 +141,9 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 1)
     private fun normalizeSender(sender: String): String {
         val digits = sender.filter { it.isDigit() }
         return if (ContactChecker.looksLikeNumber(sender)) digits.takeLast(10) else sender.trim().lowercase()
+    }
+
+    companion object {
+        private const val ACTIVITY_LIMIT = 50
     }
 }

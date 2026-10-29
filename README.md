@@ -1,48 +1,46 @@
-# Political Text Blocker (Android)
+# Political Text Blocker
 
-A small Android app that silently hides political campaign / PAC / get-out-the-vote text messages
-from **unknown senders**, using a fully on-device model. No network access, no default-SMS-app role.
+Tired of campaign and PAC texts from numbers you don't know? This Android app quietly hides them, so they
+never buzz your phone. Texts from people in your contacts are never touched.
 
-## How it works
+Everything happens on your phone. The app never sends your messages anywhere.
 
-1. **Notification access**: a `NotificationListenerService` watches notifications posted by SMS apps
-   (Google Messages, Samsung Messages, etc. and whatever the default SMS app is).
-2. **Unknown senders only**: texts from anyone in your contacts (checked via `READ_CONTACTS`),
-   group conversations, and senders you've allow-listed are never touched.
-3. **Local model**: a binarized Naive Bayes classifier trained on startup from
-   [`training.tsv`](app/src/main/assets/training.tsv), blended with a weighted keyword list
-   ([`Keywords.kt`](app/src/main/java/com/danpatten/politicalblocker/Keywords.kt)) of strong markers like
-   `Paid for by`, `ActBlue`, `WinRed`, `STOP2END`, `5X MATCH`, party and candidate names.
-4. **Suppress + archive**: if the score is ≥ 75%, the notification is cancelled, the SMS app's own
-   **Archive** action is fired (or **Mark as read** if the app has no archive action), and the message
-   is saved to the app's **Suppressed messages** list.
-5. **Feedback**: tap **Not political** on a suppressed message to allow-list that sender and retrain the
-   model with the text as a negative example.
+## Download
 
-## Setup
+**[Download the latest version (APK)](https://github.com/DanPatten/political-text-blocker/releases/latest/download/political-text-blocker.apk)**,
+or see [all releases](https://github.com/DanPatten/political-text-blocker/releases).
 
-1. Install the APK and open the app.
-2. Tap **Grant** next to *Notification access* and enable *Political Text Blocker*.
-3. Tap **Grant** next to *Contacts* so known contacts are skipped.
-4. Use the test box to try the model on any text.
+## Install
 
-## Building
+1. Open the downloaded file on your Android phone and tap **Install**. If your phone asks, allow installs from
+   your browser or files app.
+2. Open **Political Text Blocker**.
 
-```
-./gradlew testDebugUnitTest assembleDebug
-```
+## Set up
 
-APK: `app/build/outputs/apk/debug/app-debug.apk`. Requires JDK 17 and Android SDK 36.
+1. Tap **Grant** next to *Notification access* and switch on *Political Text Blocker*.
+   - If you see **"App was denied access"** or **"Restricted setting"**: go to **Settings → Apps →
+     Political Text Blocker**, tap **⋮** (top right) → **Allow restricted settings**, then try again.
+2. Tap **Grant** next to *Contacts, SMS & notifications* and allow everything it asks for.
+3. **Recommended:** go to **Settings → Apps → Messages → Notifications** and set *Incoming messages* to
+   **Silent** (not Off). Political texts then never make a sound or pop up, and this app alerts you for
+   every other text instead.
 
-## Limitations
+That's it. Blocked texts are marked as read and listed in the app.
 
-- An Android app can only truly archive or delete SMS if it is the default SMS app. This app instead uses
-  the SMS app's own notification actions, so whether it's archived or only marked read depends on the messaging app.
-- The notification can briefly flash before it's cancelled (the listener runs right after it's posted).
-- The model is small and keyword-heavy; use **Not political** to correct false positives.
+## Try it
 
-## Related projects
+- Paste any text into the box at the top and tap **Test** to see whether it would be blocked.
+- Or enter your own phone number, tap **Send test text in 10s**, and close the app. A sample political text is
+  sent to you as a normal text message and should arrive without a notification. (This won't work if your own
+  number is saved in your contacts.)
 
-- [IvanChanPing/sms-spam-shield](https://github.com/IvanChanPing/sms-spam-shield): a political-spam
-  detection *library* for apps that are the default SMS app.
-- [mattmillerai/ElectionDeflection](https://github.com/mattmillerai/ElectionDeflection): iOS political text filter.
+## Good to know
+
+- **Something got blocked by mistake?** Tap **Not political** on it in the app. That sender won't be blocked
+  again, and the app learns from it.
+- **Wondering why a text did or didn't get blocked?** Check **Recent activity** in the app.
+- **Want blocked texts archived, not just marked read?** Turn on *Auto-archive in Google Messages* and allow it
+  under Accessibility. It works by briefly opening Messages after you unlock your phone.
+
+Technical details are in [TECHNICAL.md](TECHNICAL.md).

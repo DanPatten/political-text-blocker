@@ -3,6 +3,12 @@
 
     <!-- Used to tell "unknown number" apart from "someone in my contacts". -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- Fallback when Android redacts a text's notification ("Sensitive notification content hidden"). -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <!-- Quiet mode: alerts for allowed texts when the SMS app's own notifications are silenced. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Only for the "send test text" button, which texts the user's own number. -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:name=".BlockerApp"
@@ -29,6 +35,19 @@
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
+        </service>
+
+        <service
+            android:name=".ArchiveService"
+            android:exported="false"
+            android:label="@string/archive_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/archive_service" />
         </service>
     </application>
 </manifest>
