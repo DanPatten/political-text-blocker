@@ -1,4 +1,4 @@
-# Political Text Blocker
+# Political Text Blocker for Android
 
 Tired of campaign and PAC texts from numbers you don't know? This Android app quietly hides them, so they
 never buzz your phone. Texts from people in your contacts are never touched.
