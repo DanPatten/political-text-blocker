@@ -60,6 +60,22 @@ For installing and using the app, see the [README](README.md).
 
 Outputs are in `app/build/outputs/apk/`. Requires JDK 17 and Android SDK 36.
 
+## Releasing
+
+The README's download link is
+`https://github.com/DanPatten/political-text-blocker/releases/latest/download/political-text-blocker.apk`,
+which GitHub redirects to the newest release. It keeps working as long as every release:
+
+1. Bumps `versionCode` and `versionName` in `app/build.gradle.kts`.
+2. Attaches the APK named exactly **`political-text-blocker.apk`** (rename `app-release.apk`).
+3. Is a normal release, not a draft or pre-release (those are skipped by `latest`).
+
+```
+./gradlew testDebugUnitTest assembleRelease
+cp app/build/outputs/apk/release/app-release.apk political-text-blocker.apk
+gh release create vX.Y.Z political-text-blocker.apk --title "Political Text Blocker vX.Y.Z" --notes "..."
+```
+
 ## Limitations
 
 - An Android app can only truly archive or delete SMS if it is the default SMS app. Google Messages only offers
