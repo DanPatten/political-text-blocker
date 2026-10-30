@@ -2,56 +2,59 @@
 <resources>
     <string name="app_name">Political Text Blocker</string>
     <string name="grant">Grant</string>
-    <string name="notification_access_on">Notification access: granted</string>
-    <string name="notification_access_off">Notification access: required</string>
     <string name="restricted_help">Seeing \"App was denied access\"? Tap App info, then ⋮ (top right) → Allow restricted settings, then come back and tap Grant again.</string>
     <string name="app_info">App info</string>
     <string name="restricted_intro_title">Important: Android will block this at first</string>
     <string name="restricted_intro_message">Because this app isn\'t from the Play Store, Android will say \"App was denied access\" when you switch it on. That\'s normal.\n\nTo unlock it (one time only):\n\n1. Tap Continue, tap Political Text Blocker, and tap OK on the \"denied access\" message.\n2. Come back and tap App info.\n3. Tap ⋮ (top right) → Allow restricted settings, and confirm.\n4. Come back and tap Grant again. It works this time.</string>
     <string name="restricted_intro_continue">Continue</string>
-    <string name="contacts_on">Contacts, SMS &amp; notifications: granted</string>
-    <string name="contacts_off">Contacts, SMS &amp; notifications: needed to skip contacts, read hidden texts and alert you</string>
-    <string name="quiet_on">Quiet mode: on. Google Messages is silent; this app alerts you for every non-political text.</string>
-    <string name="quiet_off">Quiet mode: off. Political texts can pop up for a split second before they\'re removed. To stop that, set Google Messages notifications to Silent (not Off).</string>
+    <string name="status_protected">Protected</string>
+    <string name="status_protected_detail">Political texts and spam ads from numbers outside your contacts are hidden automatically.</string>
+    <string name="status_political_only_detail">Political texts from numbers outside your contacts are hidden automatically.</string>
+    <string name="status_spam_only_detail">Spam ads from numbers outside your contacts are hidden automatically.</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_paused_detail">All texts come through as normal until you switch blocking back on.</string>
+    <string name="block_political">Political texts</string>
+    <string name="block_spam">Other spam ads (sales, promos, loan offers)</string>
+    <string name="status_setup">Almost ready</string>
+    <string name="status_setup_detail">Finish the setup below and blocking starts straight away.</string>
+    <plurals name="blocked_count">
+        <item quantity="one">%1$d text blocked</item>
+        <item quantity="other">%1$d texts blocked</item>
+    </plurals>
+    <string name="setup_title">Finish setup</string>
+    <string name="notification_access_title">Notification access</string>
+    <string name="notification_access_detail">Lets the app spot unwanted texts and hide them</string>
+    <string name="contacts_title">Contacts &amp; messages</string>
+    <string name="contacts_detail">Skips people you know and alerts you to everything else</string>
+    <string name="archive_title">Accessibility service</string>
+    <string name="archive_detail">Needed for auto-archive in Google Messages</string>
+    <string name="turn_on">Turn on</string>
+    <string name="auto_archive_title">Auto-archive in Messages</string>
+    <string name="auto_archive_detail">Moves blocked texts out of your inbox. Briefly opens Messages, only while your phone is unlocked.</string>
+    <string name="quiet_title_on">Quiet mode is on</string>
+    <string name="quiet_detail_on">Google Messages is silent, so this app alerts you for every text that is not blocked.</string>
+    <string name="quiet_title_off">Tip: turn on quiet mode</string>
+    <string name="quiet_detail_off">Blocked texts can flash up for a moment before being hidden. Set Google Messages notifications to Silent (not Off) to stop that.</string>
+    <string name="suppressed_header">Blocked texts</string>
+    <string name="empty_title">Nothing blocked yet</string>
+    <string name="empty">Texts that get hidden will show up here.</string>
+    <string name="clear_all_title">Clear all blocked texts?</string>
+    <string name="clear_all_message">This removes them from the list. Senders stay blocked.</string>
+    <string name="cancel">Cancel</string>
+    <string name="show">Show</string>
+    <string name="hide">Hide</string>
     <string name="mark_as_read">Mark as read</string>
     <string name="alert_channel_name">Text alerts</string>
-    <string name="alert_channel_description">Alerts for non-political texts while your messaging app is set to Silent</string>
-    <string name="blocking_enabled">Block political texts from unknown senders</string>
-    <string name="test_hint">Paste a text to test the model</string>
-    <string name="test">Test</string>
-    <string name="test_result">%1$s · %2$d%% political%3$s</string>
-    <string name="would_block">Would block</string>
-    <string name="would_allow">Would allow</string>
-    <string name="suppressed_header">Suppressed messages (%1$d)</string>
+    <string name="alert_channel_description">Alerts for texts that are not blocked while your messaging app is set to Silent</string>
     <string name="clear_all">Clear all</string>
-    <string name="empty">No political texts suppressed yet.</string>
     <string name="not_political">Not political</string>
+    <string name="not_spam">Not spam</string>
     <string name="delete">Delete</string>
     <string name="reason">%1$d%% political%2$s</string>
+    <string name="reason_spam">%1$d%% spam ad%2$s</string>
     <string name="marked_not_political">Sender allowed and model updated</string>
     <string name="recent_activity">Recent activity</string>
     <string name="no_activity">Nothing yet. Texts from your SMS app will show up here as they arrive.</string>
-    <string name="own_number_hint">Your phone number</string>
-    <string name="send_test">Send test text in 10s</string>
-    <string name="test_scheduled">Sending a test political text to %1$s in 10 seconds. Close the app now.</string>
-    <string name="test_needs_number">Enter your own phone number first</string>
-    <string name="test_needs_permission">SMS permission is needed to send the test text</string>
-    <!-- Sample political texts for the "send test text" button; one is picked at random. -->
-    <string-array name="test_messages">
-        <item>URGENT: Democrats are 2 seats from losing the Senate. Every gift is 5X MATCHED until midnight. Chip in $5: secure.actblue.com/test Paid for by Test PAC. Txt STOP2END</item>
-        <item>GOP ALERT: Your Official 2026 Republican Survey is still unanswered. Respond before the deadline: gop.com/survey Paid for by Test PAC. Reply STOP to quit</item>
-        <item>Hi, it\'s Amy with the Elect Rivera for Congress campaign. Early voting starts Saturday. Can we count on your vote? Paid for by Rivera for Congress. Reply STOP to opt out</item>
-        <item>The radical left is outspending us 3 to 1! Rush $10 to fight back before the FEC deadline: winred.com/test Pd for by Test PAC</item>
-        <item>Your polling place may have changed. Make a plan to vote on Election Day and find your location at vote.gov. Paid for by Test Voter Fund</item>
-        <item>FINAL NOTICE: Your Democratic Party membership has expired. Renew today to keep fighting for our candidates: democrats.org/test STOP2END</item>
-        <item>Patriot, your Second Amendment rights are on the ballot this November. Vote Republican up and down the ticket! Paid for by Test PAC. Txt STOP to end</item>
-        <item>End of quarter fundraising deadline is TONIGHT and our campaign is $14,000 short. Can you contribute $15? secure.anedot.com/test</item>
-        <item>Hey, it\'s Ben, a volunteer for the Senator\'s re-election campaign. The race is TIED. Can I count on your support on Tuesday? Reply STOP to quit</item>
-        <item>Breaking: the Supreme Court decision changes everything. Add your name to our petition and chip in $3 to flip the House: actblue.com/test</item>
-    </string-array>
-    <string name="auto_archive_toggle">Auto-archive in Google Messages (briefly opens Messages; only while unlocked)</string>
-    <string name="archive_on">Accessibility service for auto-archive: on</string>
-    <string name="archive_off">Auto-archive needs its accessibility service turned on</string>
     <string name="archive_service_label">Political Text Blocker auto-archive</string>
-    <string name="archive_service_description">Archives blocked political texts in Google Messages by opening the conversation list and tapping Archive for you. It only acts on conversations this app has blocked and reads no other screens.</string>
+    <string name="archive_service_description">Archives blocked texts in Google Messages by opening the conversation list and tapping Archive for you. It only acts on conversations this app has blocked and reads no other screens.</string>
 </resources>

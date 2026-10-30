@@ -1,0 +1,40 @@
+# label<TAB>text. Held-out texts, none in the training corpus, for checking both kinds of mistake:
+# missing a political text or spam ad, and hiding an ordinary text that shares their vocabulary.
+
+political	Your neighbors on Pine St have already voted. Don't be the only one on your block who sits this election out! -VoteBlock Stop to End
+political	Hi, it's Josh with Heartland Opinion Research. We're conducting a short survey about the races for Governor and Senate. Can you help? nesurvey.co/x9 Reply STOP to opt out
+political	The race for the 2nd District is a toss-up. Make sure your voice is heard on November 3rd. Stop to end
+political	Jim Pillen raised property taxes on Nebraska farmers. Tell him enough is enough. Stop2End
+political	Quick question: if the election for County Commissioner were held today, who would you vote for? Reply 1 for Smith, 2 for Jones. Stop to End
+political	Did you know? Your voting record is public. Check if your neighbors voted at didthey.vote Stop to End
+political	We're polling Nebraskans about abortion, immigration, and the economy. Share your views in 2 minutes: surv.ly/ne26 STOP2END
+political	Hey it's Ana from Nebraska Appleseed. Medicaid cuts in Congress will hurt 100,000 Nebraskans. Call Rep. Flood today and tell him to protect our care. Reply STOP to end
+political	Initiative 438 would raise the minimum wage. Vote YES on 438 on Nov 3. Stop to end
+political	Quick poll: which issue matters most to you this fall? 1) Economy 2) Healthcare 3) Immigration 4) Crime. Stop2End
+political	Don Bacon's seat is open. Who will you support for Congress this November? Reply A for the Democrat, B for the Republican. STOP2END
+
+spam	Huge sale this weekend at Kohl's! 40% off all shoes. Reply STOP to opt out
+spam	Black Friday starts now: up to 70% off TVs and laptops. Shop now at electronics.com Reply STOP to end
+spam	You've won a free cruise for two! Claim your prize before Friday: cruise-win.co Reply STOP to end
+spam	Lower your car payment by up to $200 a month. Get pre approved in minutes: autoloan.ly Txt STOP to quit
+spam	Last chance: free shipping on every order ends at midnight. Use code SHIPFREE. Reply STOP to unsubscribe
+spam	Buy one get one free on all burgers today only at Burger Barn! Show this text at the register. Reply STOP to end
+
+other	Hi, this is a reminder from Omaha Public Schools: parent teacher conferences are Tuesday, November 3rd. Sign up for a time at ops.org/conferences Reply STOP to end
+other	Hi! This is Megan from Nebraska Furniture Mart. We'd love your feedback on your recent visit. Can you answer a few questions? nfm.com/feedback Reply STOP to opt out
+other	Go Big Red! Huskers kick off at 2:30 Saturday. Your mobile tickets are in the app. Reply STOP to end
+other	Your Hy-Vee order is ready for pickup! Pickup window: 4-5 PM today. Reply STOP to end
+other	Your Nebraska DMV appointment is confirmed for Wed 11/4 at 10am. Bring your license and proof of address. dmv.nebraska.gov
+other	Final notice: your Planet Fitness membership payment is past due. Update your card at planetfitness.com/account to avoid a late fee. Reply STOP to end
+other	Hey, the HOA board meeting is Tuesday at 7pm. We will vote on the snow removal contract. Hope to see you there
+other	Your SNAP benefits have been deposited to your EBT card. Check your balance at ebtedge.com Reply STOP to end
+other	Reminder from the County Election Commission: you are now a poll worker for Tuesday. Training is Saturday at 9am.
+other	Your flu shot appointment at Walgreens is tomorrow at 11 AM. Reply STOP to opt out
+other	Hey, it's Kate! Are you coming to the Halloween party Saturday? Have a minute to call me?
+other	Grandpa wants to know if you can drive him to vote on Tuesday morning
+other	Your Mutual of Omaha policy renews on 12/1. No action is needed. Reply STOP to end
+other	Your verification code is 112233. Never share this code. Reply STOP to opt out
+other	Omaha Police: a missing child alert has been issued for your area. Details at opd.ci.omaha.ne.us
+other	Your table at Upstream Brewing is ready! Please check in with the host. Reply STOP to end
+other	Your Social Security statement is available. Sign in at ssa.gov to view it.
+other	Your county property tax statement is now available. Pay online by Dec 31 at douglascounty-ne.gov

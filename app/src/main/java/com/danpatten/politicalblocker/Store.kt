@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
 /** Local SQLite store: suppressed messages, user corrections, and allow-listed senders. */
-class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3) {
+class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 4) {
 
     data class Suppressed(
         val id: Long,
@@ -16,7 +16,11 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3)
         val probability: Double,
         val keywords: String,
         val sourcePackage: String,
-    )
+        /** [CATEGORY_POLITICAL] or [CATEGORY_SPAM]. */
+        val category: String,
+    ) {
+        val isSpam: Boolean get() = category == CATEGORY_SPAM
+    }
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
@@ -28,6 +32,7 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3)
                 probability REAL NOT NULL,
                 keywords TEXT NOT NULL,
                 source_package TEXT NOT NULL,
+                category TEXT NOT NULL DEFAULT '$CATEGORY_POLITICAL',
                 UNIQUE(sender, body))"""
         )
         db.execSQL("CREATE TABLE feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, political INTEGER NOT NULL, body TEXT NOT NULL)")
@@ -39,6 +44,8 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3)
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) createPendingArchive(db)
         if (oldVersion < 3) createActivity(db)
+        // Everything blocked before v4 was political; that was the only category.
+        if (oldVersion < 4) db.execSQL("ALTER TABLE suppressed ADD COLUMN category TEXT NOT NULL DEFAULT '$CATEGORY_POLITICAL'")
     }
 
     private fun createActivity(db: SQLiteDatabase) {
@@ -83,7 +90,7 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3)
     }
 
     /** Returns false if this exact message was already recorded (SMS apps re-post notifications). */
-    fun addSuppressed(sender: String, body: String, probability: Double, keywords: List<String>, pkg: String): Boolean {
+    fun addSuppressed(sender: String, body: String, probability: Double, keywords: List<String>, pkg: String, category: String): Boolean {
         val values = ContentValues().apply {
             put("sender", sender)
             put("body", body)
@@ -91,18 +98,19 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3)
             put("probability", probability)
             put("keywords", keywords.joinToString(", "))
             put("source_package", pkg)
+            put("category", category)
         }
         return writableDatabase.insertWithOnConflict("suppressed", null, values, SQLiteDatabase.CONFLICT_IGNORE) != -1L
     }
 
     fun suppressed(): List<Suppressed> =
         readableDatabase.rawQuery(
-            "SELECT id, sender, body, timestamp, probability, keywords, source_package FROM suppressed ORDER BY timestamp DESC",
+            "SELECT id, sender, body, timestamp, probability, keywords, source_package, category FROM suppressed ORDER BY timestamp DESC",
             null,
         ).use { c ->
             buildList {
                 while (c.moveToNext()) {
-                    add(Suppressed(c.getLong(0), c.getString(1), c.getString(2), c.getLong(3), c.getDouble(4), c.getString(5), c.getString(6)))
+                    add(Suppressed(c.getLong(0), c.getString(1), c.getString(2), c.getLong(3), c.getDouble(4), c.getString(5), c.getString(6), c.getString(7)))
                 }
             }
         }
@@ -115,6 +123,7 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3)
         writableDatabase.delete("suppressed", null, null)
     }
 
+    /** A correction from the user; [political] false means an ordinary text (neither political nor an ad). */
     fun addFeedback(political: Boolean, body: String) {
         writableDatabase.insert("feedback", null, ContentValues().apply {
             put("political", if (political) 1 else 0)
@@ -124,7 +133,12 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3)
 
     fun feedback(): List<PoliticalClassifier.Example> =
         readableDatabase.rawQuery("SELECT political, body FROM feedback", null).use { c ->
-            buildList { while (c.moveToNext()) add(PoliticalClassifier.Example(c.getInt(0) == 1, c.getString(1))) }
+            buildList {
+                while (c.moveToNext()) {
+                    val label = if (c.getInt(0) == 1) PoliticalClassifier.Label.POLITICAL else PoliticalClassifier.Label.OTHER
+                    add(PoliticalClassifier.Example(label, c.getString(1)))
+                }
+            }
         }
 
     fun allowSender(sender: String) {
@@ -145,5 +159,7 @@ class Store(context: Context) : SQLiteOpenHelper(context, "blocker.db", null, 3)
 
     companion object {
         private const val ACTIVITY_LIMIT = 50
+        const val CATEGORY_POLITICAL = "political"
+        const val CATEGORY_SPAM = "spam"
     }
 }

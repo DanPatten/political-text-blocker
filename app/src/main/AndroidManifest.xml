@@ -7,8 +7,6 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <!-- Quiet mode: alerts for allowed texts when the SMS app's own notifications are silenced. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- Only for the "send test text" button, which texts the user's own number. -->
-    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:name=".BlockerApp"

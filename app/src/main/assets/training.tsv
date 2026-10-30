@@ -1,4 +1,4 @@
-# label<TAB>text. Seed corpus for the on-device Naive Bayes model. Labels: political | other
+# label<TAB>text. Seed corpus for the on-device Naive Bayes models. Labels: political | spam (commercial ads) | other
 political	URGENT: Trump needs you! Chip in $5 before midnight to defend America: winred.com/save-america Reply STOP to quit
 political	Democrats are 3 seats from losing the House. Your gift will be 5X MATCHED for the next hour: secure.actblue.com/donate/fight Paid for by DCCC
 political	Hi, it's Sarah with the campaign to elect Jane Smith for Congress. Can we count on your vote on November 5th? Txt STOP2END
@@ -63,7 +63,7 @@ other	Your verification code is 482193. Do not share it with anyone.
 other	Your Amazon package was delivered. Track at amzn.to/3xYzA
 other	Hey are we still on for dinner tonight? Let me know
 other	Your appointment with Dr. Lee is confirmed for Tue Oct 14 at 2:30 PM. Reply C to confirm or R to reschedule.
-other	Get 30% off everything this weekend only! Shop now at oldnavy.com. Reply STOP to opt out
+spam	Get 30% off everything this weekend only! Shop now at oldnavy.com. Reply STOP to opt out
 other	Chase: A charge of $45.12 at SHELL was made on your card ending 1234. Reply YES if this was you.
 other	UPS: Your package will arrive today between 1pm and 5pm. Reply STOP to unsubscribe
 other	Your Uber is arriving now. Look for a silver Toyota Camry.
@@ -72,10 +72,10 @@ other	Reminder: your car is due for an oil change. Book at jiffylube.com/book Re
 other	Hi, this is the dentist's office. We have an opening tomorrow at 10am if you'd like it.
 other	Your DoorDash order is on the way! Track it here: drd.sh/abc123
 other	Happy birthday!! Hope you have an amazing day
-other	FLASH SALE: Buy one get one free on all pizzas tonight! Order now at dominos.com Txt STOP to quit
+spam	FLASH SALE: Buy one get one free on all pizzas tonight! Order now at dominos.com Txt STOP to quit
 other	Your Verizon bill of $85.40 is due on Oct 21. Pay at vzw.com/pay
 other	Did you see the game last night? Unbelievable ending
-other	Hi, this is Kevin from Zillow. Are you still interested in selling your home? Reply STOP to opt out
+spam	Hi, this is Kevin from Zillow. Are you still interested in selling your home? Reply STOP to opt out
 other	Your Google verification code is G-552013
 other	Running 10 min late, sorry!
 other	Your prescription is ready for pickup at CVS Pharmacy. Reply STOP to opt out
@@ -83,7 +83,7 @@ other	Walmart: your order has shipped. Track: walmart.com/track
 other	Hey it's Mike from work, this is my new number
 other	Fraud alert from Bank of America: Did you attempt a $499.00 purchase at Best Buy? Reply YES or NO
 other	Your Lyft code is 8823
-other	Last chance! Our biggest sale of the year ends at midnight. Use code SAVE40. Reply STOP to end
+spam	Last chance! Our biggest sale of the year ends at midnight. Use code SAVE40. Reply STOP to end
 other	Reminder: Parent teacher conferences are next Thursday. Sign up at the school website
 other	Your table is ready at Olive Garden. Please check in at the host stand.
 other	Thanks for your payment of $120.00 to City Water Utility.
@@ -95,19 +95,19 @@ other	Your WhatsApp code: 113-552. Don't share this code with others
 other	Spectrum: Service outage in your area. Estimated restoration 4:00 PM.
 other	Your Netflix payment failed. Update your payment method at netflix.com/account
 other	Mom says call her when you get a chance
-other	Congrats! You've earned 500 bonus points. Redeem at starbucks.com/rewards Reply STOP to opt out
+spam	Congrats! You've earned 500 bonus points. Redeem at starbucks.com/rewards Reply STOP to opt out
 other	Your Instacart shopper Maria has started shopping your order
 other	Hey, the meeting got moved to 3pm. Same room
 other	Weather alert: Flash flood warning in your area until 9 PM.
 other	Your flight UA 1234 to Denver is on time. Departs 6:45 PM from gate B12.
 other	Hey, it's the landlord. Maintenance will be by tomorrow at 9 to fix the sink.
 other	Your Apple ID code is 773201. Do not share it.
-other	Black Friday deals are here early! Up to 60% off TVs at Best Buy. Txt STOP to end
+spam	Black Friday deals are here early! Up to 60% off TVs at Best Buy. Txt STOP to end
 other	New match! Someone near you liked your profile. Open the app to see who
 other	Your library book is due in 3 days. Renew online at the library website
 other	This is a reminder that your gym membership renews on the 1st. Questions? Call us
 other	Your Venmo code is 902211. Never share this code.
-other	Hi, are you still looking for a used car? We have great deals this week at Smith Auto. Reply STOP
+spam	Hi, are you still looking for a used car? We have great deals this week at Smith Auto. Reply STOP
 other	Got the tickets for Saturday! Section 112
 other	Your Hertz rental is ready for pickup at counter 3.
 other	School closing early today at 1pm due to weather. Please arrange pickup.
@@ -116,14 +116,14 @@ other	Your survey: How was your recent visit to Home Depot? Tell us at homedepot
 other	PayPal: You received $25.00 from John Smith.
 other	Hey can you send me that recipe you made last week?
 other	Your Comcast technician will arrive between 8 and 10 AM tomorrow.
-other	Good news! You're pre-approved for a credit card with 0% APR. Apply now. Reply STOP to end
-other	Urgent: your car's extended warranty is about to expire. Call now to renew
+spam	Good news! You're pre-approved for a credit card with 0% APR. Apply now. Reply STOP to end
+spam	Urgent: your car's extended warranty is about to expire. Call now to renew
 other	Reminder: HOA meeting Tuesday at 7pm in the clubhouse. The board will vote on the new pool hours.
 other	Your Target order is ready for Drive Up. Tap to let us know you're on the way
 other	Hey, I'm outside
 other	Your package from Etsy has been delivered to your front door.
-other	Free shipping on all orders today only! Shop the fall collection at gap.com. Reply STOP to unsubscribe
-other	Hello, I'm a recruiter with TechStaff. Are you open to new job opportunities?
+spam	Free shipping on all orders today only! Shop the fall collection at gap.com. Reply STOP to unsubscribe
+spam	Hello, I'm a recruiter with TechStaff. Are you open to new job opportunities?
 other	Your Costco membership expires next month. Renew in warehouse or online
 other	Did the kids get to school OK?
 other	Sorry wrong number
@@ -137,8 +137,82 @@ political	Ted Cruz voted to raise the debt ceiling while Texas families struggle
 political	Lawmakers in Lansing want to take away your right to choose. Call your state representative today. Reply STOP to end
 political	Politicians in Washington keep raising gas prices on hardworking families. Demand better from your representative
 political	Special interests are buying our elections. Pete Ricketts took $2 million from big oil. Stop to end
-other	Gas prices dropped this week! Fill up at Shell and save 10 cents a gallon with your Fuel Rewards. Reply STOP to opt out
+spam	Gas prices dropped this week! Fill up at Shell and save 10 cents a gallon with your Fuel Rewards. Reply STOP to opt out
 other	Your utility bill of $142.18 is ready. View and pay at duke-energy.com
 other	Reminder: your Medicare annual wellness visit is due. Call Dr. Patel's office to schedule
 other	Our family is so excited for the war memorial tour on Saturday! Meet at 9am
 other	Price increase notice: your streaming plan will go up $2/month starting next billing cycle
+
+# Added v1.3.0, modelled on real texts reported from Nebraska (Oct 2026). Recipient names and addresses removed.
+political	Public records show you voted in 2020 but not 2022. Make a plan to vote this November! Who you vote for is private, but whether you vote is public record. -VoteCheck Stop to End
+political	Jordan, records show you skipped the last midterm. Early voting ends Monday, only 3 days left! Voting info: sos.state.gov/elections -OurVote Stop to end
+political	Your neighbors can see whether you voted. Check your voting record before Election Day: myvoterecord.org Stop to End
+political	If you live at 1200 Oak St, our models say your chance of voting this year is: UNLIKELY. Prove us wrong on Tuesday! Stop to end
+political	If you're registered to vote at this address, your polling location on Tuesday is Lincoln Elementary School. Confirm on the official site and check voting hours. -VoteReady Stop to End
+political	Polls are open 7am to 8pm on Tuesday. Find your polling site and bring a friend to vote! -Mike w/ Get Out The Vote Stop to End
+political	Election Day is Tuesday! There will be food trucks outside your polling site, come vote and celebrate democracy with your community. Stop to end
+political	This is Ashley with the Smith for Senate team. This race is close and we need to know we can count on your vote. Will you commit to voting early? Reply Stop to Opt Out
+political	State Sen. Miller says he supports lower property taxes, but he voted NO on LB 34 twice. Vote NO on Miller on November 3rd. Reply STOP to quit
+political	Our state senator cut income taxes for working families. Let's keep him fighting for District 12! Vote Jones: go.link/vj stop=end
+political	Independent candidate Mark Lee will lower prescription drug costs and protect Medicaid. Vote Lee on or before Nov 3. -Stronger Together Stop to End
+political	Big corporations are buying influence while our congressman sits on the committee that oversees them. We deserve leaders who work for us, not Wall Street. -Better Future Stop to End
+political	Hello! We'd like to hear your opinions on current issues facing your state. Can you answer a few questions? Start here: research-now.net/482 Reply STOP to opt out
+political	Hi, this is Dana from Public Opinion Strategies. We're collecting feedback on important issues facing Ohio voters. Your perspective matters: survey.co/x2 Reply Stop to End
+political	We're conducting a survey in your area on the President's approval rating. Can you give us your thoughts? srvy.us/a8 STOP2END
+political	Hi, Political Research Group here with a short poll about the upcoming governor's race: surveymonkey.com/r/abc STOP2END
+political	Quick question: how many families lost health coverage since the Medicaid cuts? Reply 1) under 1M 2) 3M 3) over 5M 4) Don't know -VoteRise Stop to End
+political	Hey, it's Kim. We're asking people how they feel about US aid to Ukraine and would love your input. Have a minute? Stop2End
+political	Early voting has started! Find early voting locations here: sos.state.gov/vote. Know anyone who just moved? Reply for help. STOP2END
+political	Share your thoughts in this 3 minute county survey about the November ballot measures: qualtrics.com/jfe/form/SV_x1 Stop=End
+political	The tariffs our senator voted for have raised grocery prices by $1,200 per family. Tell him to stop. -Working Families Stop to End
+political	Vote YES on Amendment 2 to protect access to medical cannabis. Polls open 7am-8pm Tuesday. Paid for by Patients First
+political	Ballot measure 7 would raise the minimum wage to $15. Vote YES on Nov 3 to give workers a raise. Stop to end
+political	Hi, I'm a volunteer with Civic Action. Polls close at 8pm tonight, have you voted yet? Find your polling location at vote.org Stop to End
+political	Our school board candidates will put parents first. Early voting runs through Saturday. Reply STOP to opt out
+
+# Commercial ads.
+spam	Fall clearance! Save up to 50% on furniture this weekend only at Nebraska Furniture Mart. Shop now: nfm.com/sale Reply STOP to end
+spam	You're pre-approved for a personal loan up to $25,000. Lower your rate today, apply now: loans.co/x Reply STOP to opt out
+spam	Exclusive offer: get 2 months of premium free when you upgrade today. Offer ends Sunday. Reply STOP to unsubscribe
+spam	Hi! Thinking of selling? We'll make a cash offer on your home in 24 hours, no repairs needed. Reply YES for your free quote. STOP to end
+spam	Congrats! You've been selected for a $100 Walmart gift card. Claim your reward here: gft.ly/w1 Reply STOP to end
+spam	New arrivals just dropped! Use code FALL20 for 20% off your order. Shop now at shop.com Txt STOP to quit
+spam	Get a free roof inspection this week! Storm damage? We work with your insurance. Call now for a free quote. Reply STOP to end
+spam	Your cart is waiting! Complete your order today and get free shipping. Offer expires tonight. Reply STOP to opt out
+spam	Happy hour all day Tuesday! $5 margaritas and half price apps at Rocco's. Show this text. Reply STOP to end
+spam	Medical debt relief program: cut your debt in half with one low monthly payment. See if you qualify: debtfree.co Reply STOP to end
+spam	Upgrade to unlimited data for just $10 more a month. Limited time deal, reply YES to upgrade. STOP to end
+spam	BOGO deal: buy one large pizza, get one free tonight only! Order now: pizza.co/bogo STOP to end
+spam	We buy houses for cash in any condition. Are you still interested in selling your home? Reply STOP to opt out
+spam	Your car may qualify for lower insurance rates. Get a free quote in 2 minutes: insure.ly/q Reply STOP to end
+spam	Join us for our grand opening Saturday! First 100 customers get a free gift. Reply STOP to unsubscribe
+
+# Ordinary texts from unknown senders: bills, appointments, notices, customer feedback, government services.
+other	This is a reminder and final notice that your bill with City Hospital is past due. Payment options are available at citypay.com For help call 866-555-0100. To opt out of future messages, reply STOP.
+other	Your appointment with Dr. Ramirez is on Tuesday, November 3rd at 2:30 PM. Reply C to confirm or R to reschedule. Reply STOP to opt out
+other	Hello! How did we do? Please take our 2 minute survey about your recent stay at the Hilton. Reply STOP to end
+other	Survey: how likely are you to recommend Cox Communications to a friend? Reply with a number from 0 to 10. Reply STOP to end
+other	Your electric bill of $142.18 is due Nov 3. Pay online at oppd.com/pay or reply HELP for help. Reply STOP to end
+other	County Treasurer: your vehicle registration renewal is due by 11/30. Renew online at treasurer.org Reply STOP to opt out
+other	The public library will be closed on Tuesday for Veterans Day. Reply STOP to unsubscribe
+other	Your records request is complete. View your medical records online at the patient portal. Reply STOP to end
+other	Reminder: your Medicaid renewal paperwork is due by 11/15. Visit the DHHS website or call the help line. Reply STOP to end
+other	Your Census Bureau survey is still incomplete. Please respond online at respond.census.gov Reply STOP to end
+other	You may qualify for financial assistance on your hospital bill. Call our billing office for details. Reply STOP to end
+other	Reminder: jury duty service at the county courthouse begins Monday at 8am. Check your reporting status online
+other	Your DMV appointment is confirmed for Wednesday at 10am. Bring your license and proof of address.
+other	Thanks for volunteering at the food pantry Saturday! Please arrive by 8am at the church. Reply STOP to opt out
+other	School picture day is Tuesday, November 3rd. Order packages online by Friday. Reply STOP to end
+other	Your policy documents are ready. Log in to view them on our website. Reply STOP to end
+other	Your pharmacy refill is ready. Pickup by Tuesday or it will be returned to stock. Reply STOP to opt out
+other	Water main repair on your street Tuesday 8am to 4pm. Expect low water pressure. Reply STOP to unsubscribe
+other	Reminder: city trash pickup is delayed one day this week due to the holiday. Reply STOP to end
+other	Your account has a new statement available. Log in to view it. Reply STOP to opt out
+other	Your order has shipped and will arrive Thursday. Track your package: ups.com/track Reply STOP to end
+other	Sorry I missed your call, I was at the polls with grandma, she wanted to vote early. Talk tonight?
+other	Ugh gas prices went up again, I paid like $3.40 this morning
+other	Hey, did you watch the debate last night? My dad kept yelling at the TV lol
+other	Your security code is 552301. It expires in 10 minutes. Do not share this code.
+other	Thank you for your payment. Your balance is now $0.00. Reply STOP to opt out
+other	The parent survey for Westside Middle School is open until Friday. Your feedback helps our teachers. Reply STOP to end
+other	Severe weather alert: tornado watch for Douglas County until 10 PM. Stay tuned to local news.

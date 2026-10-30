@@ -14,7 +14,7 @@ import androidx.core.app.NotificationCompat
 
 /**
  * Watches notifications from SMS apps. When an incoming text from an unknown sender is
- * classified as political, the notification is cancelled, the SMS app's own
+ * classified as political or as a spam ad (each can be switched off), the notification is cancelled, the SMS app's own
  * "Archive" (or "Mark as read") action is fired, and the message is saved to the app's list.
  */
 class SmsNotificationListener : NotificationListenerService() {
@@ -41,7 +41,9 @@ class SmsNotificationListener : NotificationListenerService() {
     }
 
     private fun handle(sbn: StatusBarNotification) {
-        if (!BlockerApp.isEnabled(this) || !isSmsApp(sbn.packageName)) return
+        val blockPolitical = BlockerApp.isEnabled(this)
+        val blockSpam = BlockerApp.isSpamBlockingOn(this)
+        if (!(blockPolitical || blockSpam) || !isSmsApp(sbn.packageName)) return
         val notification = sbn.notification
         if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
 
@@ -62,19 +64,30 @@ class SmsNotificationListener : NotificationListenerService() {
         }
 
         val result = app.classifier.classify(text.body)
-        val percent = (result.probability * 100).toInt()
-        if (!result.isPolitical) {
-            allow(sbn, text, "Allowed ${text.sender} (not political, $percent%): $snippet")
-            return
+        val political = (result.politicalProbability * 100).toInt()
+        val spam = (result.spamProbability * 100).toInt()
+        val (category, probability, keywords) = when {
+            result.isPolitical && blockPolitical -> Triple(Store.CATEGORY_POLITICAL, result.politicalProbability, result.politicalKeywords)
+            result.isSpam && blockSpam -> Triple(Store.CATEGORY_SPAM, result.spamProbability, result.spamKeywords)
+            else -> {
+                val why = when {
+                    result.isPolitical -> "political, but political blocking is off"
+                    result.isSpam -> "spam ad, but spam blocking is off"
+                    else -> "$political% political, $spam% spam ad"
+                }
+                allow(sbn, text, "Allowed ${text.sender} ($why): $snippet")
+                return
+            }
         }
 
-        app.record("Blocked ${text.sender} ($percent% political): $snippet")
+        val label = if (category == Store.CATEGORY_SPAM) "spam ad" else "political"
+        app.record("Blocked ${text.sender} (${(probability * 100).toInt()}% $label): $snippet")
         cancelNotification(sbn.key)
         archiveInSmsApp(notification)
         cancelOrphanedSummary(sbn)
 
         // SMS apps re-post the same notification several times; only act on the first sighting.
-        if (!app.store.addSuppressed(text.sender, text.body, result.probability, result.matchedKeywords, sbn.packageName)) return
+        if (!app.store.addSuppressed(text.sender, text.body, probability, keywords, sbn.packageName, category)) return
 
         // Google Messages has no archive action, so ArchiveService archives it through the UI.
         if (sbn.packageName == ArchiveService.MESSAGES && BlockerApp.isAutoArchiveOn(this) && ArchiveService.isEnabled(this)) {

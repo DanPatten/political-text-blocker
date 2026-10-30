@@ -14,21 +14,23 @@ import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.text.format.DateFormat
 import android.text.format.DateUtils
-import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import java.util.Date
@@ -38,17 +40,23 @@ class MainActivity : AppCompatActivity() {
     private val app get() = BlockerApp.get(this)
     private val adapter = SuppressedAdapter()
 
-    private lateinit var notificationStatus: TextView
-    private lateinit var grantNotification: Button
-    private lateinit var contactsStatus: TextView
-    private lateinit var grantContacts: Button
-    private lateinit var archiveStatus: TextView
-    private lateinit var grantArchive: Button
-    private lateinit var suppressedHeader: TextView
-    private lateinit var emptyView: TextView
-    private lateinit var ownNumber: EditText
-    private lateinit var activityLog: TextView
+    private lateinit var statusCard: MaterialCardView
+    private lateinit var statusTitle: TextView
+    private lateinit var statusDetail: TextView
+    private lateinit var blockedCount: TextView
+    private lateinit var enabledSwitch: MaterialSwitch
+    private lateinit var spamSwitch: MaterialSwitch
+    private lateinit var setupCard: View
+    private lateinit var notificationRow: View
+    private lateinit var contactsRow: View
+    private lateinit var archiveRow: View
+    private lateinit var restrictedHelp: View
+    private lateinit var quietTitle: TextView
     private lateinit var quietStatus: TextView
+    private lateinit var clearAll: Button
+    private lateinit var emptyView: View
+    private lateinit var activityLog: TextView
+    private lateinit var activityToggle: Button
 
     private val changedReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -58,6 +66,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Also picks dark status-bar icons in light theme, so the clock stays readable.
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -69,18 +79,24 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        notificationStatus = findViewById(R.id.notificationStatus)
-        grantNotification = findViewById(R.id.grantNotification)
-        contactsStatus = findViewById(R.id.contactsStatus)
-        grantContacts = findViewById(R.id.grantContacts)
-        archiveStatus = findViewById(R.id.archiveStatus)
-        grantArchive = findViewById(R.id.grantArchive)
-        suppressedHeader = findViewById(R.id.suppressedHeader)
+        statusCard = findViewById(R.id.statusCard)
+        statusTitle = findViewById(R.id.statusTitle)
+        statusDetail = findViewById(R.id.statusDetail)
+        blockedCount = findViewById(R.id.blockedCount)
+        setupCard = findViewById(R.id.setupCard)
+        notificationRow = findViewById(R.id.notificationRow)
+        contactsRow = findViewById(R.id.contactsRow)
+        archiveRow = findViewById(R.id.archiveRow)
+        restrictedHelp = findViewById(R.id.restrictedHelp)
+        quietTitle = findViewById(R.id.quietTitle)
+        quietStatus = findViewById(R.id.quietStatus)
+        clearAll = findViewById(R.id.clearAll)
         emptyView = findViewById(R.id.emptyView)
-        activityLog = findViewById<TextView>(R.id.activityLog).apply { movementMethod = ScrollingMovementMethod() }
+        activityLog = findViewById(R.id.activityLog)
+        activityToggle = findViewById(R.id.activityToggle)
 
         findViewById<Button>(R.id.openAppInfo).setOnClickListener { openAppInfo() }
-        grantNotification.setOnClickListener {
+        findViewById<Button>(R.id.grantNotification).setOnClickListener {
             if (BlockerApp.hasSeenRestrictedIntro(this)) {
                 openListenerSettings()
             } else {
@@ -95,17 +111,26 @@ class MainActivity : AppCompatActivity() {
                     .show()
             }
         }
-        grantContacts.setOnClickListener {
+        findViewById<Button>(R.id.grantContacts).setOnClickListener {
             requestPermissions(RUNTIME_PERMISSIONS, REQUEST_CONTACTS)
         }
-        grantArchive.setOnClickListener {
+        findViewById<Button>(R.id.grantArchive).setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
-        quietStatus = findViewById(R.id.quietStatus)
 
-        findViewById<MaterialSwitch>(R.id.enabledSwitch).apply {
+        enabledSwitch = findViewById<MaterialSwitch>(R.id.enabledSwitch).apply {
             isChecked = BlockerApp.isEnabled(this@MainActivity)
-            setOnCheckedChangeListener { _, checked -> BlockerApp.setEnabled(this@MainActivity, checked) }
+            setOnCheckedChangeListener { _, checked ->
+                BlockerApp.setEnabled(this@MainActivity, checked)
+                refreshPermissions()
+            }
+        }
+        spamSwitch = findViewById<MaterialSwitch>(R.id.spamSwitch).apply {
+            isChecked = BlockerApp.isSpamBlockingOn(this@MainActivity)
+            setOnCheckedChangeListener { _, checked ->
+                BlockerApp.setSpamBlockingOn(this@MainActivity, checked)
+                refreshPermissions()
+            }
         }
         findViewById<MaterialSwitch>(R.id.autoArchiveSwitch).apply {
             isChecked = BlockerApp.isAutoArchiveOn(this@MainActivity)
@@ -117,31 +142,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val testInput = findViewById<EditText>(R.id.testInput)
-        val testResult = findViewById<TextView>(R.id.testResult)
-        findViewById<Button>(R.id.testButton).setOnClickListener {
-            val result = app.classifier.classify(testInput.text.toString())
-            testResult.visibility = View.VISIBLE
-            testResult.text = getString(
-                R.string.test_result,
-                getString(if (result.isPolitical) R.string.would_block else R.string.would_allow),
-                (result.probability * 100).toInt(),
-                keywordSuffix(result.matchedKeywords.joinToString(", ")),
-            )
+        clearAll.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.clear_all_title)
+                .setMessage(R.string.clear_all_message)
+                .setPositiveButton(R.string.clear_all) { _, _ ->
+                    app.store.clearSuppressed()
+                    refreshList()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
         }
 
-        ownNumber = findViewById<EditText>(R.id.ownNumber).apply { setText(BlockerApp.ownNumber(this@MainActivity)) }
-        findViewById<Button>(R.id.sendTest).setOnClickListener {
-            if (checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
-                scheduleTestText()
-            } else {
-                requestPermissions(arrayOf(Manifest.permission.SEND_SMS), REQUEST_SEND_SMS)
-            }
-        }
-
-        findViewById<Button>(R.id.clearAll).setOnClickListener {
-            app.store.clearSuppressed()
-            refreshList()
+        activityToggle.setOnClickListener {
+            val show = !activityLog.isVisible
+            activityLog.isVisible = show
+            activityToggle.setText(if (show) R.string.hide else R.string.show)
         }
 
         findViewById<RecyclerView>(R.id.list).apply {
@@ -171,25 +187,6 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         refreshPermissions()
-        if (requestCode == REQUEST_SEND_SMS) {
-            if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-                scheduleTestText()
-            } else {
-                Toast.makeText(this, R.string.test_needs_permission, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    /** Texts a random political sample to the user's own number in 10s, so they can close the app first. */
-    private fun scheduleTestText() {
-        val number = ownNumber.text.toString().trim()
-        if (!ContactChecker.looksLikeNumber(number)) {
-            Toast.makeText(this, R.string.test_needs_number, Toast.LENGTH_SHORT).show()
-            return
-        }
-        BlockerApp.setOwnNumber(this, number)
-        app.sendTestTextLater(number, TEST_DELAY_MS)
-        Toast.makeText(this, getString(R.string.test_scheduled, number), Toast.LENGTH_LONG).show()
     }
 
     private fun openListenerSettings() = startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
@@ -197,34 +194,60 @@ class MainActivity : AppCompatActivity() {
     private fun openAppInfo() =
         startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
 
+    /** Shows only what still needs doing: granted permissions drop off the screen. */
     private fun refreshPermissions() {
         val listenerOn = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
-        notificationStatus.setText(if (listenerOn) R.string.notification_access_on else R.string.notification_access_off)
-        grantNotification.visibility = if (listenerOn) View.GONE else View.VISIBLE
-
         val contactsOn = RUNTIME_PERMISSIONS.all { checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
-        contactsStatus.setText(if (contactsOn) R.string.contacts_on else R.string.contacts_off)
-        grantContacts.visibility = if (contactsOn) View.GONE else View.VISIBLE
-
-        quietStatus.setText(if (BlockerApp.isQuietMode(this)) R.string.quiet_on else R.string.quiet_off)
-
         // The accessibility service only matters when the auto-archive toggle is on.
-        (archiveStatus.parent as View).visibility = if (BlockerApp.isAutoArchiveOn(this)) View.VISIBLE else View.GONE
-        val archiveOn = ArchiveService.isEnabled(this)
-        archiveStatus.setText(if (archiveOn) R.string.archive_on else R.string.archive_off)
-        grantArchive.visibility = if (archiveOn) View.GONE else View.VISIBLE
+        val archiveNeeded = BlockerApp.isAutoArchiveOn(this) && !ArchiveService.isEnabled(this)
 
+        notificationRow.isVisible = !listenerOn
+        contactsRow.isVisible = !contactsOn
+        archiveRow.isVisible = archiveNeeded
         // Sideloaded apps can't get notification or accessibility access until the user allows
         // restricted settings, so explain how while either is still missing.
-        val restricted = !listenerOn || (BlockerApp.isAutoArchiveOn(this) && !archiveOn)
-        findViewById<View>(R.id.restrictedHelp).visibility = if (restricted) View.VISIBLE else View.GONE
+        restrictedHelp.isVisible = !listenerOn || archiveNeeded
+        setupCard.isVisible = !listenerOn || !contactsOn || archiveNeeded
+
+        val status = when {
+            !listenerOn -> Status(
+                R.string.status_setup, R.string.status_setup_detail,
+                com.google.android.material.R.attr.colorErrorContainer,
+                com.google.android.material.R.attr.colorOnErrorContainer,
+            )
+            !enabledSwitch.isChecked && !spamSwitch.isChecked -> Status(
+                R.string.status_paused, R.string.status_paused_detail,
+                com.google.android.material.R.attr.colorSurfaceContainerHighest,
+                com.google.android.material.R.attr.colorOnSurface,
+            )
+            else -> Status(
+                R.string.status_protected,
+                when {
+                    !spamSwitch.isChecked -> R.string.status_political_only_detail
+                    !enabledSwitch.isChecked -> R.string.status_spam_only_detail
+                    else -> R.string.status_protected_detail
+                },
+                com.google.android.material.R.attr.colorPrimaryContainer,
+                com.google.android.material.R.attr.colorOnPrimaryContainer,
+            )
+        }
+        statusCard.setCardBackgroundColor(MaterialColors.getColor(statusCard, status.background))
+        val foreground = MaterialColors.getColor(statusCard, status.foreground)
+        statusTitle.setText(status.title)
+        statusDetail.setText(status.detail)
+        listOf(statusTitle, statusDetail, blockedCount, enabledSwitch, spamSwitch).forEach { it.setTextColor(foreground) }
+
+        val quiet = BlockerApp.isQuietMode(this)
+        quietTitle.setText(if (quiet) R.string.quiet_title_on else R.string.quiet_title_off)
+        quietStatus.setText(if (quiet) R.string.quiet_detail_on else R.string.quiet_detail_off)
     }
 
     private fun refreshList() {
         val items = app.store.suppressed()
         adapter.submit(items)
-        suppressedHeader.text = getString(R.string.suppressed_header, items.size)
-        emptyView.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+        blockedCount.text = resources.getQuantityString(R.plurals.blocked_count, items.size, items.size)
+        emptyView.isVisible = items.isEmpty()
+        clearAll.isVisible = items.isNotEmpty()
 
         val activity = app.store.activity()
         activityLog.text = if (activity.isEmpty()) {
@@ -246,6 +269,8 @@ class MainActivity : AppCompatActivity() {
         refreshList()
     }
 
+    private class Status(val title: Int, val detail: Int, val background: Int, val foreground: Int)
+
     private inner class SuppressedAdapter : RecyclerView.Adapter<SuppressedAdapter.Holder>() {
         private var items: List<Store.Suppressed> = emptyList()
 
@@ -262,10 +287,18 @@ class MainActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: Holder, position: Int) {
             val item = items[position]
+            // Named senders get their initial; plain numbers get a neutral "#".
+            holder.avatar.text = item.sender.firstOrNull()?.takeIf { it.isLetter() }?.uppercase() ?: "#"
             holder.sender.text = item.sender
             holder.time.text = DateUtils.getRelativeTimeSpanString(item.timestamp)
             holder.body.text = item.body
-            holder.reason.text = getString(R.string.reason, (item.probability * 100).toInt(), keywordSuffix(item.keywords))
+            holder.reason.text = getString(
+                if (item.isSpam) R.string.reason_spam else R.string.reason,
+                (item.probability * 100).toInt(),
+                keywordSuffix(item.keywords),
+            )
+            // Either way the text is recorded as ordinary and the sender allowed.
+            holder.notPolitical.setText(if (item.isSpam) R.string.not_spam else R.string.not_political)
             holder.notPolitical.setOnClickListener { markNotPolitical(item) }
             holder.delete.setOnClickListener {
                 app.store.deleteSuppressed(item.id)
@@ -274,6 +307,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         inner class Holder(view: View) : RecyclerView.ViewHolder(view) {
+            val avatar: TextView = view.findViewById(R.id.avatar)
             val sender: TextView = view.findViewById(R.id.sender)
             val time: TextView = view.findViewById(R.id.time)
             val body: TextView = view.findViewById(R.id.body)
@@ -285,8 +319,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CONTACTS = 1
-        private const val REQUEST_SEND_SMS = 2
-        private const val TEST_DELAY_MS = 10_000L
         private val RUNTIME_PERMISSIONS = buildList {
             add(Manifest.permission.READ_CONTACTS)
             add(Manifest.permission.READ_SMS)

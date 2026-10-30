@@ -1,9 +1,9 @@
 package com.danpatten.politicalblocker
 
 /**
- * Phrases common in US campaign / PAC fundraising and get-out-the-vote texts.
- * Weights are added to the classifier's log-odds: strong markers (legal disclaimers and the
- * fundraising platforms nearly every campaign link goes through) count far more than words like
+ * Phrases common in US campaign / PAC fundraising and get-out-the-vote texts, and in commercial
+ * promo texts. Weights are added to each model's log-odds: strong markers (legal disclaimers and
+ * the fundraising platforms nearly every campaign link goes through) count far more than words like
  * "vote" or "survey" that also appear in ordinary texts.
  */
 object Keywords {
@@ -14,13 +14,16 @@ object Keywords {
     private const val MEDIUM = 2.0
     private const val WEAK = 1.0
 
-    val all: List<Keyword> = listOf(
-        // Disclaimers and fundraising platforms.
+    val political: List<Keyword> = listOf(
+        // Disclaimers, fundraising platforms, and the opt-out wording political texting platforms use.
         STRONG to listOf(
             "paid for by", "pd for by", "pd by", "not authorized by any candidate",
             "authorized by", "actblue", "winred", "anedot", "fec", "super pac",
             "political action committee", "secure ad", "official ballot", "stop2end", "stop2quit",
             "txt stop2end",
+            // Voter-record pressure and turnout-score texts.
+            "whether you vote", "public record", "public records", "voting record", "you voted in",
+            "likelihood of you voting", "didthey vote",
         ),
         // Fundraising pressure, parties, offices and well-known names.
         MEDIUM to listOf(
@@ -28,8 +31,9 @@ object Keywords {
             "5x match", "6x match", "4x match", "3x match", "triple match", "matched",
             "matching", "end of quarter", "fundraising deadline", "pac", "campaign",
             "candidate", "election", "elections", "ballot", "ballots", "polling place",
+            "polling location", "polling site", "election day", "cast your ballot", "vote early",
             "early voting", "early vote", "absentee", "mail in ballot", "register to vote",
-            "voter registration", "voters", "midterm", "midterms", "primary election",
+            "registered to vote", "voter registration", "voters", "midterm", "midterms", "primary election",
             "congress", "congressman", "congresswoman", "senate", "senator", "house majority",
             "senate majority", "flip the house", "flip the senate", "democrat", "democrats",
             "democratic", "republican", "republicans", "gop", "dnc", "rnc", "dccc", "nrcc",
@@ -37,26 +41,60 @@ object Keywords {
             "schumer", "mcconnell", "jeffries", "desantis", "newsom", "aoc", "radical left",
             "far left", "liberals", "conservatives", "impeach", "impeachment", "supreme court",
             "white house", "president", "presidential", "governor", "gubernatorial",
-            "attorney general", "state rep", "city council", "patriots", "endorsed",
+            "attorney general", "state rep", "state sen", "city council", "patriots", "endorsed",
             "endorsement", "petition", "town hall", "swing state", "battleground",
+            "vote yes", "vote no", "count on your vote", "commit to voting", "your vote",
             // Issue / attack ads, which often have no donation ask or party name.
             "supported the", "voted to", "voted for", "voted against", "voting for", "voting against",
             "keeps voting", "your senator", "your congressman", "your congresswoman", "your representative",
-            "lawmakers", "politicians", "legislature", "endless wars",
+            "lawmakers", "politicians", "legislature", "legislation", "endless wars",
             "tariffs", "tax cuts", "tax hike", "tax increase", "billionaires", "special interests",
+            // Political pollsters: opinion surveys about issues, races or approval ratings.
+            "opinion research", "current issues", "important issues", "issues facing", "approval",
         ),
         // Common in political texts but also in ordinary conversation.
         WEAK to listOf(
             "vote", "voting", "voted", "poll", "polls", "survey", "majority", "primary",
             "volunteer", "district", "patriot", "deadline", "deficit", "border", "abortion",
             "second amendment", "2nd amendment", "taxpayer", "democracy", "constitution",
-            "stop to quit", "stop to end", "stop 2 end", "reply stop", "$5", "$10", "$25",
-            "rush", "urgent", "gov", "war", "wars", "gas prices", "price increases", "inflation",
-            "utility bills", "per household", "families", "seniors", "deserve better", "social security", "medicare",
-            "medicaid",
+            "$5", "$10", "$25", "rush", "urgent", "war", "wars", "gas prices", "price increases",
+            "inflation", "utility bills", "per household", "families", "seniors", "deserve better",
+            "social security", "medicare", "medicaid", "snap", "immigration", "israel",
         ),
         MEDIUM to POLITICIANS,
     ).flatMap { (weight, phrases) -> phrases.map { Keyword(it, weight) } }
+
+    /** Sales and promo wording. Transactional texts (orders, bills, appointments) use none of it. */
+    val spam: List<Keyword> = listOf(
+        STRONG to listOf(
+            "% off", "shop now", "use code", "promo code", "coupon", "free shipping", "bogo",
+            "buy one get one", "flash sale", "pre approved", "extended warranty",
+            "you ve won", "you have won", "claim your", "cash offer", "debt relief", "lower your rate",
+        ),
+        MEDIUM to listOf(
+            "sale", "deals", "deal", "discount", "limited time", "today only", "this weekend only",
+            "ends tonight", "ends at midnight", "last chance", "biggest sale", "save up to", "order now",
+            "apply now", "act now", "exclusive offer", "special offer", "rewards", "bonus points",
+            "lowest price", "free gift", "new arrivals", "clearance", "get a quote", "free quote",
+            "are you still interested", "selling your home", "job opportunities", "0% apr",
+        ),
+        WEAK to listOf("offer", "free", "save", "shop", "renew now", "upgrade", "limited"),
+    ).flatMap { (weight, phrases) -> phrases.map { Keyword(it, weight) } }
+
+    /**
+     * Opt-out footers. Every bulk text has one, political or commercial, so they only say "this was
+     * mass-sent" and count once no matter how many variants a footer hits ("Reply STOP to end").
+     */
+    val optOut: List<String> = listOf(
+        "reply stop", "text stop", "txt stop", "stop to end", "stop to quit", "stop to opt out",
+        "stop 2 end", "stop end", "stop to unsubscribe", "to opt out", "opt out", "unsubscribe",
+    )
+
+    /** One-time codes and similar security texts: never block these, whatever else they say. */
+    val transactional: List<String> = listOf(
+        "verification code", "security code", "login code", "passcode", "one time code", "one time password",
+        "your code is", "do not share", "don t share", "never share",
+    )
 
     /**
      * US senators and governors (as of 2025-26), by full name plus the last names distinctive enough
@@ -91,6 +129,8 @@ object Keywords {
             "kelly armstrong", "mike dewine", "kevin stitt", "tina kotek", "josh shapiro", "dan mckee",
             "henry mcmaster", "greg abbott", "spencer cox", "glenn youngkin", "abigail spanberger",
             "bob ferguson", "patrick morrisey", "tony evers",
+            // 2026 Nebraska races, from texts users reported.
+            "dan osborn", "osborn", "don bacon", "brinker harding", "denise powell", "von gillern",
             // Distinctive last names, as ads often use them alone
             "tuberville", "murkowski", "gallego", "hickenlooper", "blumenthal", "ossoff", "warnock", "grassley",
             "mcconnell", "alsobrooks", "slotkin", "klobuchar", "hawley", "ricketts", "cortez masto", "shaheen",
@@ -99,8 +139,33 @@ object Keywords {
             "hochul", "youngkin", "spanberger", "beshear", "gianforte", "dewine", "mcmaster", "lujan grisham",
         )
 
-    fun match(text: String): List<Keyword> {
-        val padded = " ${PoliticalClassifier.normalize(text)} "
-        return all.filter { " ${PoliticalClassifier.normalize(it.phrase)} " in padded }
+    fun matchPolitical(text: String): List<Keyword> = match(political, text) + voteBrands(text)
+
+    /**
+     * Org names and domains built from "vote" or "ballot" (NextVote, OurBallot, VoteRise, votercx.qualtrics.com).
+     * Turnout groups and pollsters sign off with these; stores and people don't. Plain words ("voted") don't count.
+     */
+    private fun voteBrands(text: String): List<Keyword> =
+        PoliticalClassifier.normalize(text).split(' ')
+            .filter { VOTE_BRAND.containsMatchIn(it) && it !in VOTE_WORDS && !it.startsWith("devot") }
+            .distinct()
+            .map { Keyword(it, MEDIUM) }
+
+    private val VOTE_BRAND = Regex("vote|ballot")
+    private val VOTE_WORDS = setOf("vote", "votes", "voted", "voter", "voters", "ballot", "ballots")
+
+    fun matchSpam(text: String): List<Keyword> = match(spam, text)
+
+    fun matchOptOut(text: String): String? = optOut.firstOrNull { contains(text, it) }
+
+    fun isTransactional(text: String): Boolean = transactional.any { contains(text, it) }
+
+    private fun match(list: List<Keyword>, text: String): List<Keyword> {
+        val padded = padded(text)
+        return list.filter { " ${PoliticalClassifier.normalize(it.phrase)} " in padded }
     }
+
+    private fun contains(text: String, phrase: String) = " ${PoliticalClassifier.normalize(phrase)} " in padded(text)
+
+    private fun padded(text: String) = " ${PoliticalClassifier.normalize(text)} "
 }

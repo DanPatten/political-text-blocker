@@ -3,11 +3,8 @@ package com.danpatten.politicalblocker
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.telephony.SmsManager
 import android.util.Log
+import com.google.android.material.color.DynamicColors
 
 class BlockerApp : Application() {
 
@@ -15,6 +12,8 @@ class BlockerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // Match the phone's wallpaper colours on Android 12+.
+        DynamicColors.applyToActivitiesIfAvailable(this)
         Alerts.createChannel(this)
     }
 
@@ -30,29 +29,6 @@ class BlockerApp : Application() {
     /** Call after adding feedback so the next classification retrains with it. */
     fun invalidateClassifier() {
         cachedClassifier = null
-    }
-
-    /**
-     * Texts a sample political message to [number] (the user's own) after a delay, so the user can
-     * leave the app and watch it get blocked like a real one. Held by the Application, not the
-     * Activity, so closing the app doesn't cancel it.
-     */
-    fun sendTestTextLater(number: String, delayMs: Long) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            val sms = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                getSystemService(SmsManager::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                SmsManager.getDefault()
-            }
-            val body = resources.getStringArray(R.array.test_messages).random()
-            try {
-                sms.sendMultipartTextMessage(number, null, sms.divideMessage(body), null, null)
-                record("Test text sent to $number: \"${body.take(SNIPPET)}…\"")
-            } catch (e: Exception) {
-                record("Test text to $number failed: ${e.message}")
-            }
-        }, delayMs)
     }
 
     /** Adds a line to the in-app "Recent activity" log and refreshes the screen if it's open. */
@@ -73,18 +49,27 @@ class BlockerApp : Application() {
         private const val TAG = "PoliticalBlocker"
         private const val PREFS = "settings"
         private const val KEY_ENABLED = "enabled"
-        private const val KEY_OWN_NUMBER = "own_number"
+        private const val KEY_BLOCK_SPAM = "block_spam"
         private const val KEY_AUTO_ARCHIVE = "auto_archive"
         private const val KEY_QUIET_MODE = "quiet_mode"
         private const val KEY_RESTRICTED_INTRO = "restricted_intro_seen"
 
         fun get(context: Context) = context.applicationContext as BlockerApp
 
+        /** Whether political texts are blocked. Keeps the pre-v1.3 "enabled" key so existing settings carry over. */
         fun isEnabled(context: Context) =
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ENABLED, true)
 
         fun setEnabled(context: Context, enabled: Boolean) {
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_ENABLED, enabled).apply()
+        }
+
+        /** Whether commercial spam ads (sales, promos, loan offers) are blocked too. On by default. */
+        fun isSpamBlockingOn(context: Context) =
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_BLOCK_SPAM, true)
+
+        fun setSpamBlockingOn(context: Context, on: Boolean) {
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_BLOCK_SPAM, on).apply()
         }
 
         fun hasSeenRestrictedIntro(context: Context) =
@@ -108,13 +93,6 @@ class BlockerApp : Application() {
 
         fun setAutoArchiveOn(context: Context, on: Boolean) {
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_AUTO_ARCHIVE, on).apply()
-        }
-
-        fun ownNumber(context: Context): String =
-            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_OWN_NUMBER, "").orEmpty()
-
-        fun setOwnNumber(context: Context, number: String) {
-            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY_OWN_NUMBER, number).apply()
         }
     }
 }

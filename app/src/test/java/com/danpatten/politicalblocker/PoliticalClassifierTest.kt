@@ -1,5 +1,6 @@
 package com.danpatten.politicalblocker
 
+import com.danpatten.politicalblocker.PoliticalClassifier.Label
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -28,7 +29,6 @@ class PoliticalClassifierTest {
     private val other = listOf(
         "Your verification code is 991230",
         "Hey, did you leave your jacket at my place?",
-        "Huge sale this weekend at Kohl's! 40% off all shoes. Reply STOP to opt out",
         "Your package from Amazon will arrive tomorrow by 8pm",
         "Reminder: your dental cleaning is Monday at 9am. Reply Y to confirm",
         "Dinner at 7? I booked the Italian place",
@@ -42,16 +42,30 @@ class PoliticalClassifierTest {
         "Costco membership price increase starts September 1. Renew now to lock in your rate",
     )
 
-    /** Fails listing every misclassified text with its score, not just the first. */
-    private fun assertAll(texts: List<String>, political: Boolean) {
-        val wrong = texts.map { it to classifier.classify(it) }.filter { (_, r) -> r.isPolitical != political }
+    private fun category(r: PoliticalClassifier.Result) = when {
+        r.isPolitical -> Label.POLITICAL
+        r.isSpam -> Label.SPAM
+        else -> Label.OTHER
+    }
+
+    /** Fails listing every misclassified text with its scores, not just the first. */
+    private fun assertAll(examples: List<PoliticalClassifier.Example>) {
+        val wrong = examples.map { it to classifier.classify(it.text) }.filter { (ex, r) -> category(r) != ex.label }
         assertTrue(
-            wrong.joinToString("\n", "expected political=$political:\n") { (t, r) ->
-                "  p=${"%.2f".format(r.probability)} nb=${"%.2f".format(classifier.naiveBayesLogOdds(t))} ${r.matchedKeywords}: $t"
+            wrong.joinToString("\n", "${wrong.size} of ${examples.size} misclassified:\n") { (ex, r) ->
+                "  expected ${ex.label}, got ${category(r)}: political=${"%.2f".format(r.politicalProbability)} " +
+                    "(nb ${"%.1f".format(classifier.naiveBayesLogOdds(ex.text))}) ${r.politicalKeywords} " +
+                    "spam=${"%.2f".format(r.spamProbability)} (nb ${"%.1f".format(classifier.spamLogOdds(ex.text))}) " +
+                    "${r.spamKeywords}: ${ex.text}"
             },
             wrong.isEmpty(),
         )
     }
+
+    private fun assertAll(texts: List<String>, political: Boolean) =
+        assertAll(texts.map { PoliticalClassifier.Example(if (political) Label.POLITICAL else Label.OTHER, it) })
+
+    private fun fixture(name: String) = PoliticalClassifier.parseCorpus(File("src/test/resources/$name").readText())
 
     @Test
     fun blocksHeldOutPoliticalTexts() = assertAll(political, political = true)
@@ -59,20 +73,46 @@ class PoliticalClassifierTest {
     @Test
     fun allowsHeldOutOrdinaryTexts() = assertAll(other, political = false)
 
+    /** Real texts users reported, so a regression on what people actually receive fails the build. */
     @Test
-    fun blocksEverySampleSentByTheTestButton() {
-        val strings = File("src/main/res/values/strings.xml").readText()
-        val samples = Regex("<item>(.*?)</item>").findAll(strings).map { it.groupValues[1].replace("\\'", "'") }.toList()
-        assertTrue(samples.isNotEmpty())
-        for (text in samples) {
-            val r = classifier.classify(text)
-            assertTrue("expected political (p=${r.probability}): $text", r.isPolitical)
-        }
+    fun classifiesReportedTexts() = assertAll(fixture("reported.tsv"))
+
+    /** Both directions: political texts and spam ads caught, ordinary texts with similar wording left alone. */
+    @Test
+    fun classifiesHeldOutPoliticalSpamAndOrdinaryTexts() = assertAll(fixture("held_out.tsv"))
+
+    @Test
+    fun neverBlocksOneTimeCodesAsSpam() {
+        val r = classifier.classify("FLASH SALE code: your verification code is 4421. Do not share it. Shop now, 50% off")
+        assertTrue(!r.isSpam)
     }
+
+    @Test
+    fun politicalTextsAreNotAlsoSpam() {
+        // With political blocking off, a political text must not sneak in through the spam toggle.
+        for (text in political) assertTrue(text, !classifier.classify(text).isSpam)
+    }
+
+    @Test
+    fun blocksTypicalCampaignTexts() = assertAll(
+        listOf(
+            "URGENT: Democrats are 2 seats from losing the Senate. Every gift is 5X MATCHED until midnight. Chip in \$5: secure.actblue.com/test Paid for by Test PAC. Txt STOP2END",
+            "GOP ALERT: Your Official 2026 Republican Survey is still unanswered. Respond before the deadline: gop.com/survey Paid for by Test PAC. Reply STOP to quit",
+            "Hi, it's Amy with the Elect Rivera for Congress campaign. Early voting starts Saturday. Can we count on your vote? Paid for by Rivera for Congress. Reply STOP to opt out",
+            "The radical left is outspending us 3 to 1! Rush \$10 to fight back before the FEC deadline: winred.com/test Pd for by Test PAC",
+            "Your polling place may have changed. Make a plan to vote on Election Day and find your location at vote.gov. Paid for by Test Voter Fund",
+            "FINAL NOTICE: Your Democratic Party membership has expired. Renew today to keep fighting for our candidates: democrats.org/test STOP2END",
+            "Patriot, your Second Amendment rights are on the ballot this November. Vote Republican up and down the ticket! Paid for by Test PAC. Txt STOP to end",
+            "End of quarter fundraising deadline is TONIGHT and our campaign is \$14,000 short. Can you contribute \$15? secure.anedot.com/test",
+            "Hey, it's Ben, a volunteer for the Senator's re-election campaign. The race is TIED. Can I count on your support on Tuesday? Reply STOP to quit",
+            "Breaking: the Supreme Court decision changes everything. Add your name to our petition and chip in \$3 to flip the House: actblue.com/test",
+        ),
+        political = true,
+    )
 
     @Test
     fun keywordsMatchWholeWordsOnly() {
         // "pac" must not match inside "package" / "space".
-        assertTrue(Keywords.match("Your package is in the space bay").none { it.phrase == "pac" })
+        assertTrue(Keywords.matchPolitical("Your package is in the space bay").none { it.phrase == "pac" })
     }
 }

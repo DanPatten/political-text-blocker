@@ -9,15 +9,17 @@ For installing and using the app, see the [README](README.md).
    watches notifications posted by SMS apps (Google Messages, Samsung Messages, etc. and whatever the default SMS
    app is).
 2. **Unknown senders only**: texts from anyone in your contacts (checked via `READ_CONTACTS`), group
-   conversations, and senders marked *Not political* are never touched.
+   conversations, and senders marked *Not political* or *Not spam* are never touched.
 3. **Local model**: a binarized Naive Bayes classifier
    ([`PoliticalClassifier.kt`](app/src/main/java/com/danpatten/politicalblocker/PoliticalClassifier.kt)) trained on
    startup from [`training.tsv`](app/src/main/assets/training.tsv) plus the user's corrections, blended with a
    weighted keyword list ([`Keywords.kt`](app/src/main/java/com/danpatten/politicalblocker/Keywords.kt)) of strong
    markers like `Paid for by`, `ActBlue`, `WinRed`, `STOP2END`, `5X MATCH`, party and candidate names.
-   Nothing leaves the device; the app has no network permission.
-4. **Suppress**: if the score is ≥ 75%, the notification is cancelled, the SMS app's own **Archive** action is fired
-   (or **Mark as read** if it has none), and the message is saved to the app's **Suppressed messages** list.
+   A second model scores commercial spam (sales, promos, loan offers) against ordinary texts; it is never applied
+   to one-time codes. Nothing leaves the device; the app has no network permission.
+4. **Suppress**: two toggles at the top of the app, *Political texts* and *Other spam ads* (both on by default),
+   choose which models apply. If the political score is ≥ 75% or the spam score is ≥ 80%, the notification is cancelled, the SMS app's own **Archive** action is fired
+   (or **Mark as read** if it has none), and the message is saved to the app's **Blocked texts** list.
    Buttons are matched by semantic action first, because redacted notifications have blank button labels.
 5. **Quiet mode**: a notification listener can only remove a notification after it has already popped up and
    played its sound (about 0.5 s on an emulator). If the SMS app's notification channel is set to **Silent**
@@ -36,9 +38,8 @@ For installing and using the app, see the [README](README.md).
    message. In both cases the app reads the text from the SMS inbox instead
    ([`SmsReader.kt`](app/src/main/java/com/danpatten/politicalblocker/SmsReader.kt), `READ_SMS`), matched by the
    notification's message timestamp (`when`, not `postTime`, which changes on every re-post).
-8. **Recent activity**: every decision is logged to SQLite with its reason and shown in the app.
-9. **Test button**: sends a random sample from `test_messages` in `strings.xml` to the user's own number after
-   10 s via `SmsManager` (`SEND_SMS`). A unit test checks every sample is classified as political.
+8. **Recent activity**: every decision is logged to SQLite with its reason and shown in the app (collapsed by
+   default under *Recent activity → Show*).
 
 ## Permissions
 
@@ -48,7 +49,6 @@ For installing and using the app, see the [README](README.md).
 | `READ_CONTACTS` | Skip senders in your contacts |
 | `READ_SMS` | Read texts whose notifications Android redacted |
 | `POST_NOTIFICATIONS` | Quiet-mode alerts |
-| `SEND_SMS` | Only the *Send test text* button |
 | Accessibility (optional) | Auto-archive in Google Messages |
 
 ## Building
