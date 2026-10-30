@@ -31,7 +31,7 @@ object Keywords {
             "5x match", "6x match", "4x match", "3x match", "triple match", "matched",
             "matching", "end of quarter", "fundraising deadline", "pac", "campaign",
             "candidate", "election", "elections", "ballot", "ballots", "polling place",
-            "polling location", "polling site", "election day", "cast your ballot", "vote early",
+            "polling location", "polling site", "cast your ballot", "vote early",
             "early voting", "early vote", "absentee", "mail in ballot", "register to vote",
             "registered to vote", "voter registration", "voters", "midterm", "midterms", "primary election",
             "congress", "congressman", "congresswoman", "senate", "senator", "house majority",
@@ -44,6 +44,12 @@ object Keywords {
             "attorney general", "state rep", "state sen", "city council", "patriots", "endorsed",
             "endorsement", "petition", "town hall", "swing state", "battleground",
             "vote yes", "vote no", "count on your vote", "commit to voting", "your vote",
+            // Get-out-the-vote pushes, often sent casually with no link or opt-out footer.
+            "go vote", "come vote", "get out and vote", "get out the vote", "and vote for", "out and vote",
+            "ready to vote", "plan to vote",
+            // Volunteer asks and fake party memberships.
+            "knock doors", "knocking doors", "phone bank", "yard sign", "poll watchers", "party membership",
+            "membership card", "member status", "supporter card",
             // Issue / attack ads, which often have no donation ask or party name.
             "supported the", "voted to", "voted for", "voted against", "voting for", "voting against",
             "keeps voting", "your senator", "your congressman", "your congresswoman", "your representative",
@@ -51,10 +57,13 @@ object Keywords {
             "tariffs", "tax cuts", "tax hike", "tax increase", "billionaires", "special interests",
             // Political pollsters: opinion surveys about issues, races or approval ratings.
             "opinion research", "current issues", "important issues", "issues facing", "approval",
+            // Pollster multiple choice ("Reply with 1 through 6").
+            "reply with 1",
         ),
         // Common in political texts but also in ordinary conversation.
         WEAK to listOf(
-            "vote", "voting", "voted", "poll", "polls", "survey", "majority", "primary",
+            "vote", "voting", "voted", "vote for", "vote on tuesday", "vote tuesday", "vote this tuesday",
+            "poll", "polls", "survey", "majority", "primary",
             "volunteer", "district", "patriot", "deadline", "deficit", "border", "abortion",
             "second amendment", "2nd amendment", "taxpayer", "democracy", "constitution",
             "$5", "$10", "$25", "rush", "urgent", "war", "wars", "gas prices", "price increases",
@@ -140,6 +149,21 @@ object Keywords {
         )
 
     fun matchPolitical(text: String): List<Keyword> = match(political, text) + voteBrands(text)
+
+    /**
+     * How friends and family write ("can you give me a ride to vote", "i told you not to vote for him lol").
+     * Campaign texts talk at "you" and rarely use these, so they mark a text as a personal conversation.
+     */
+    private val personal = listOf(
+        // Not "we're" or "us": campaigns say "we're asking" and "help us" all the time.
+        "i", "i m", "im", "i ll", "i d", "i ve", "me", "my", "mine", "lol", "lmao", "haha", "hahaha",
+        "lmk", "honestly", "ugh", "omg", "tbh", "idk", "mom", "dad", "grandma", "grandpa", "aunt", "uncle", "sister",
+        "brother", "ride", "pick you up", "pick up", "meet us", "come with", "borrow", "cover for me", "argued",
+        "i told you", "said they", "said she", "said he", "we should", "together", "want to come", "off work",
+        "after work", "say hi", "grabbing", "errands", "your car", "skip the line", "want to join",
+    )
+
+    fun matchPersonal(text: String): List<String> = personal.filter { contains(text, it) }
 
     /**
      * Org names and domains built from "vote" or "ballot" (NextVote, OurBallot, VoteRise, votercx.qualtrics.com).

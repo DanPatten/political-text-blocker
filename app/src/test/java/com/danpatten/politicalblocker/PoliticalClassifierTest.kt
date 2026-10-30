@@ -110,6 +110,85 @@ class PoliticalClassifierTest {
         political = true,
     )
 
+    /**
+     * ~1000 personal texts about voting and politicians (rides to the polls, plans, opinions), generated from
+     * templates. Rare from a non-contact, but a friend on a new number must never have these hidden.
+     */
+    @Test
+    fun allowsPersonalTextsAboutVoting() {
+        val texts = personalVotingTexts() - KNOWN_AMBIGUOUS
+        assertTrue("only ${texts.size} generated", texts.size >= 1000)
+        assertAll(texts, political = false)
+    }
+
+    /**
+     * Word for word what a get-out-the-vote text says, with nothing personal in them, so the model can't tell.
+     * Listed rather than tuned away, because tuning for these would let real campaign texts through.
+     */
+    private val KNOWN_AMBIGUOUS = setOf(
+        "don't forget your ID when you go vote on election day",
+        "we should go vote early on election day so we skip the line",
+    )
+
+    private fun personalVotingTexts(): List<String> {
+        val templates = listOf(
+            "I can take you to go vote {day}",
+            "can you give me a ride to go vote {day}?",
+            "i told you not to vote for {pol} lol",
+            "{who} needs a ride to vote {day} morning, can you take them?",
+            "want to go vote together {day} after work?",
+            "did you vote yet? the line at {place} was short",
+            "I voted at {place}, took like 10 min",
+            "{who} is going to vote at {place} {day}, meet us there?",
+            "are you voting for {pol}? I'm still undecided honestly",
+            "i can't believe {who} is voting for {pol} lol",
+            "don't forget your ID when you go vote {day}",
+            "Can you pick up the kids {day}? I'm going to vote after work",
+            "{pol} was on the news again lol did you see that",
+            "what time are you voting {day}? I'll come with",
+            "I'll drive {who} to the polls {day}, can you watch the dog",
+            "the polling place at {place} had free cookies lol",
+            "Going to vote {day} then grabbing lunch, want to come?",
+            "I mailed my ballot {day}, hope it gets there in time",
+            "ugh the political ads are nonstop, I'm so over {pol}",
+            "{who} keeps texting me about {pol} haha make it stop",
+            "can you remind me to vote {day}? I always forget",
+            "{who} said they'll vote for whoever fixes the potholes lol",
+            "did you see the debate last night? {pol} was rough",
+            "I'm working the polls at {place} {day}, stop by and say hi",
+            "we should go vote early {day} so we skip the line",
+            "Leaving work early {day} to vote, can you cover for me?",
+            "can I borrow your car {day}? need to go vote and run errands",
+            "I'm not telling you who I voted for lol. ok fine it wasn't {pol}",
+            "{who} wants to know if you registered to vote at the new address",
+            "election day is {day}, are you off work?",
+            "Ride to vote {day}? I can pick you up at 8",
+            "Mom asked if you're voting {day}, call her when you can",
+            "lmk if you need a ride to vote {day}",
+            "I can take you to vote after your appointment {day}",
+            "we're voting at {place} {day} around noon if you want to join",
+            "honestly I don't care who wins as long as {pol} stops calling my phone",
+            "{who} and I argued about {pol} all through dinner again",
+            "sure I can give you a ride to vote {day}, but I told you not to vote for {pol} lol",
+        )
+        val who = listOf("grandma", "grandpa", "mom", "dad", "my sister", "Jake", "Aunt Linda", "my neighbor", "Sam")
+        val days = listOf("tuesday", "on tuesday", "tomorrow", "this weekend", "saturday", "on nov 3", "on election day", "monday")
+        val places = listOf("the library", "the church on maple", "the school gym", "the community center", "city hall", "the fire station")
+        val politicians = listOf(
+            "pete ricketts", "pete rickets", "Ricketts", "don bacon", "Dan Osborn", "trump", "the governor", "the mayor",
+            "biden", "jim pillen", "the school board guy", "deb fischer", "harris",
+        )
+        return templates.flatMap { template ->
+            (0 until 144).map { i ->
+                template
+                    .replace("{who}", who[i % who.size])
+                    .replace("{day}", days[(i / 2 + i / 72) % days.size])
+                    .replace("{place}", places[(i + 3 + i / 36) % places.size])
+                    .replace("{pol}", politicians[(i * 5) % politicians.size])
+            }
+        }.distinct()
+    }
+
     @Test
     fun keywordsMatchWholeWordsOnly() {
         // "pac" must not match inside "package" / "space".

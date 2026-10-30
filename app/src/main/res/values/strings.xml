@@ -33,8 +33,6 @@
     <string name="auto_archive_detail">Moves blocked texts out of your inbox. Briefly opens Messages, only while your phone is unlocked.</string>
     <string name="quiet_title_on">Quiet mode is on</string>
     <string name="quiet_detail_on">Google Messages is silent, so this app alerts you for every text that is not blocked.</string>
-    <string name="quiet_title_off">Tip: turn on quiet mode</string>
-    <string name="quiet_detail_off">Blocked texts can flash up for a moment before being hidden. Set Google Messages notifications to Silent (not Off) to stop that.</string>
     <string name="suppressed_header">Blocked texts</string>
     <string name="empty_title">Nothing blocked yet</string>
     <string name="empty">Texts that get hidden will show up here.</string>

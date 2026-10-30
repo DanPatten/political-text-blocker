@@ -16,7 +16,9 @@ For installing and using the app, see the [README](README.md).
    weighted keyword list ([`Keywords.kt`](app/src/main/java/com/danpatten/politicalblocker/Keywords.kt)) of strong
    markers like `Paid for by`, `ActBlue`, `WinRed`, `STOP2END`, `5X MATCH`, party and candidate names.
    A second model scores commercial spam (sales, promos, loan offers) against ordinary texts; it is never applied
-   to one-time codes. Nothing leaves the device; the app has no network permission.
+   to one-time codes. A text with no link and no opt-out footer that reads like a conversation ("I", "my", "lol",
+   "ride", "grandma"…) has its political score lowered, so a friend texting about voting isn't hidden; about 1,000
+   generated personal texts in the unit tests guard this. Nothing leaves the device; the app has no network permission.
 4. **Suppress**: two toggles at the top of the app, *Political texts* and *Other spam ads* (both on by default),
    choose which models apply. If the political score is ≥ 75% or the spam score is ≥ 80%, the notification is cancelled, the SMS app's own **Archive** action is fired
    (or **Mark as read** if it has none), and the message is saved to the app's **Blocked texts** list.

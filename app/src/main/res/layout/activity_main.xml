@@ -299,6 +299,7 @@
                 </LinearLayout>
 
                 <com.google.android.material.divider.MaterialDivider
+                    android:id="@+id/quietDivider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="14dp" />
@@ -307,12 +308,14 @@
                     android:id="@+id/quietTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="@string/quiet_title_on"
                     android:textAppearance="?attr/textAppearanceBodyLarge" />
 
                 <TextView
                     android:id="@+id/quietStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="@string/quiet_detail_on"
                     android:textAppearance="?attr/textAppearanceBodySmall"
                     android:textColor="?attr/colorOnSurfaceVariant" />
             </LinearLayout>

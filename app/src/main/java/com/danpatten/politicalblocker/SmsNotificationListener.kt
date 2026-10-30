@@ -46,6 +46,8 @@ class SmsNotificationListener : NotificationListenerService() {
         if (!(blockPolitical || blockSpam) || !isSmsApp(sbn.packageName)) return
         val notification = sbn.notification
         if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
+        // Ongoing notifications are the SMS app's own status ("processing messages"), never a text.
+        if (notification.flags and Notification.FLAG_ONGOING_EVENT != 0) return
 
         val app = BlockerApp.get(this)
         val text = extract(sbn)?.let { it.copy(sender = ContactChecker.canonicalSender(it.sender)) }

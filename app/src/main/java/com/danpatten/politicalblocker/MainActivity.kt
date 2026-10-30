@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var contactsRow: View
     private lateinit var archiveRow: View
     private lateinit var restrictedHelp: View
+    private lateinit var quietDivider: View
     private lateinit var quietTitle: TextView
     private lateinit var quietStatus: TextView
     private lateinit var clearAll: Button
@@ -88,6 +89,7 @@ class MainActivity : AppCompatActivity() {
         contactsRow = findViewById(R.id.contactsRow)
         archiveRow = findViewById(R.id.archiveRow)
         restrictedHelp = findViewById(R.id.restrictedHelp)
+        quietDivider = findViewById(R.id.quietDivider)
         quietTitle = findViewById(R.id.quietTitle)
         quietStatus = findViewById(R.id.quietStatus)
         clearAll = findViewById(R.id.clearAll)
@@ -237,9 +239,9 @@ class MainActivity : AppCompatActivity() {
         statusDetail.setText(status.detail)
         listOf(statusTitle, statusDetail, blockedCount, enabledSwitch, spamSwitch).forEach { it.setTextColor(foreground) }
 
+        // Only mention quiet mode once it's on, to explain why alerts come from this app.
         val quiet = BlockerApp.isQuietMode(this)
-        quietTitle.setText(if (quiet) R.string.quiet_title_on else R.string.quiet_title_off)
-        quietStatus.setText(if (quiet) R.string.quiet_detail_on else R.string.quiet_detail_off)
+        listOf(quietDivider, quietTitle, quietStatus).forEach { it.isVisible = quiet }
     }
 
     private fun refreshList() {

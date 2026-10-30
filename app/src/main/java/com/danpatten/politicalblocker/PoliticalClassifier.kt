@@ -40,11 +40,16 @@ class PoliticalClassifier(examples: List<Example>) {
         val optOut = Keywords.matchOptOut(text)
         // Campaigns and stores mass-send with an opt-out footer or a link; a text with neither is
         // most likely from a person, so it needs much stronger evidence before it's hidden.
-        val bulk = if (optOut != null || URL.containsMatchIn(text)) BULK_BONUS else PERSONAL_PENALTY
+        val isBulk = optOut != null || URL.containsMatchIn(text)
+        val bulk = if (isBulk) BULK_BONUS else PERSONAL_PENALTY
+        // A one-to-one text written like a conversation ("can you give me a ride to vote") is a friend
+        // talking about the election, not a campaign, however political its words are.
+        val conversational = if (isBulk) 0.0 else Keywords.matchPersonal(text).size * CONVERSATIONAL_PENALTY
 
         val political = Keywords.matchPolitical(text)
         val politicalLogit = NB_WEIGHT * politicalModel.logOdds(text) +
-            political.sumOf { it.weight }.coerceAtMost(KEYWORD_CAP) + bulk + BIAS
+            political.sumOf { it.weight }.coerceAtMost(KEYWORD_CAP) + bulk + BIAS +
+            conversational.coerceAtLeast(-CONVERSATIONAL_CAP)
 
         val spam = Keywords.matchSpam(text)
         val spamLogit = if (Keywords.isTransactional(text)) {
@@ -107,6 +112,8 @@ class PoliticalClassifier(examples: List<Example>) {
         private const val SPAM_BIAS = -2.5
         private const val BULK_BONUS = 0.5
         private const val PERSONAL_PENALTY = -2.5
+        private const val CONVERSATIONAL_PENALTY = -2.0
+        private const val CONVERSATIONAL_CAP = 8.0
         private const val MIN_COUNT = 2
 
         private val URL = Regex("""(https?://|www\.|\b[a-z0-9-]+\.(com|org|net|io|co|ly|us|gov|vote|me|info|link)\b/?)""", RegexOption.IGNORE_CASE)
